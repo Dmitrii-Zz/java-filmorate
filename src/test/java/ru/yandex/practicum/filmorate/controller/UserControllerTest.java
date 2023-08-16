@@ -45,6 +45,7 @@ public class UserControllerTest {
     public void addUserNullTest() {
         userValidateException(null);
     }
+    
     @Test
     public void addUserWithoutEmailTest()  {
         User user = new User();

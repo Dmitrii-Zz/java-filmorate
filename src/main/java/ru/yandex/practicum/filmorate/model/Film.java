@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -10,8 +9,10 @@ import java.time.LocalDate;
 @Data
 public class Film {
     private int id;
+    @NotNull
     @NotBlank
     private String name;
+    @NotNull
     @NotBlank
     private String description;
     @NotNull

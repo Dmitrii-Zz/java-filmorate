@@ -20,6 +20,7 @@ public class FilmRepository {
     public boolean findFilmId(int id) {
         return films.containsKey(id);
     }
+    
     public Film save(Film film) {
         film.setId(filmId);
         films.put(filmId++, film);

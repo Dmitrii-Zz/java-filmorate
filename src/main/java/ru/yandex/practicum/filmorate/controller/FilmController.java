@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -13,8 +14,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@RequiredArgsConstructor
 public class FilmController {
-    private final FilmRepository filmRepository = new FilmRepository();
+    private final FilmRepository filmRepository;
     private static final int MIN_DURATION_FILM = 0;
     private static final int MAX_LENGTH_DESCRIPTION = 200;
     private static final LocalDate VALIDATE_DATE_FILM = LocalDate.of(1895, 12, 28);

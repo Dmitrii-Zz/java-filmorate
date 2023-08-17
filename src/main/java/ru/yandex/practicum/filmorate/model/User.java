@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -8,16 +10,17 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
-    private int id;
+    int id;
     @Email
     @NotBlank
     @NotNull
-    private String email;
+    String email;
     @NotBlank
     @NotNull
-    private String login;
+    String login;
     private String name;
     @NotNull
-    private LocalDate birthday;
+    LocalDate birthday;
 }

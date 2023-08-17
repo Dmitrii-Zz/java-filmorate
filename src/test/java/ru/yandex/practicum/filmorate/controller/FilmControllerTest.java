@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
 
-    private static final FilmController filmController = new FilmController();
+    private static final FilmController filmController = new FilmController(new FilmRepository());
     private static final String MESS_FILM_VALIDATE_EXCEPTION = "Неверно указаны имя, описание или дата релиза.";
 
     @BeforeAll

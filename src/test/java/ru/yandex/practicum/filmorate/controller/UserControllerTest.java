@@ -7,12 +7,13 @@ import org.junit.jupiter.api.function.Executable;
 
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class UserControllerTest {
-    private static final UserController userController = new UserController();
+    private static final UserController userController = new UserController(new UserRepository());
     private static final String MESS_USER_VALIDATE_EXCEPTION =
             "Проверьте правильность заполнения данных почты, логина или даты рождения.";
 

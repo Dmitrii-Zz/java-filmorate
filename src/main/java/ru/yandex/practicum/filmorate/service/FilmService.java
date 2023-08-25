@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmService {
     private final InMemoryFilmStorage inMemoryFilmStorage;
+
     public void addLike(int filmId, int userId) {
         Film film = inMemoryFilmStorage.getFilmById(filmId);
         film.getLikes().add(userId);

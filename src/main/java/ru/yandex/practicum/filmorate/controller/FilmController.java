@@ -3,12 +3,17 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.impl.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
+
+import static ru.yandex.practicum.filmorate.Constants.*;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -16,57 +21,111 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    private final FilmRepository filmRepository;
-    private static final int MIN_DURATION_FILM = 0;
-    private static final int MAX_LENGTH_DESCRIPTION = 200;
-    private static final LocalDate VALIDATE_DATE_FILM = LocalDate.of(1895, 12, 28);
-
+    private final InMemoryFilmStorage inMemoryFilmStorage;
+    private final InMemoryUserStorage inMemoryUserStorage;
+    private final FilmService filmService;
     @GetMapping
     public List<Film> findAll() {
-        return filmRepository.findAll();
+        return inMemoryFilmStorage.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable int id) {
+
+        if (id < CORRECT_ID) {
+            throw new FilmValidationException(String.format("Передан неверный id = \"%d\" ", id));
+        }
+
+        if (!inMemoryFilmStorage.findFilmId(id)) {
+            throw new FilmNotFoundException(String.format("Фильм с \"%d\" отсутствует", id));
+        }
+
+        return inMemoryFilmStorage.getFilmById(id);
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
 
         if (film == null) {
-            log.debug("Фильм отсутствует!");
-            throw new ValidationException("Фильм отсутствует!");
+            throw new FilmNotFoundException("Фильм отсутствует!");
         }
 
-        if (!validate(film)) {
-            log.debug("Валидация при создании фильма не пройдена!");
-            throw new ValidationException("Неверно указаны имя, описание или дата релиза.");
-        }
-
-        return filmRepository.save(film);
+        validate(film);
+        return inMemoryFilmStorage.save(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
 
-        if (!filmRepository.findFilmId(film.getId())) {
-            log.debug("Фильм с id '{}' отсутствует", film.getId());
-            throw new ValidationException("Неверно указан id фильма!");
+        if (!inMemoryFilmStorage.findFilmId(film.getId())) {
+            throw new FilmNotFoundException("Неверно указан id фильма.");
         }
 
-        if (!validate(film)) {
-            log.debug("Валидация при обновления фильма не пройдена!");
-            throw new ValidationException("Неверно указаны имя, описание или дата релиза.");
-        }
-
-        return filmRepository.update(film);
+        validate(film);
+        return inMemoryFilmStorage.update(film);
     }
 
-    private boolean validate(Film film) {
+    @PutMapping("/{id}/like/{userId}")
+    public void addLikeFilm(@PathVariable int id, @PathVariable int userId) {
+        validateId(id, userId);
+        filmService.addLike(id, userId);
+    }
 
-        if (film.getName() == null) {
-            return false;
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable int id, @PathVariable int userId) {
+        validateId(id, userId);
+        filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> popularFilms(@RequestParam(defaultValue = "10") int count) {
+
+        if (count < CORRECT_COUNT) {
+            throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\" ", count));
         }
 
-        return !film.getName().isBlank()
-               && film.getReleaseDate().isAfter(VALIDATE_DATE_FILM)
-               && film.getDescription().length() <= MAX_LENGTH_DESCRIPTION
-               && film.getDuration() > MIN_DURATION_FILM;
+        return filmService.popularFilms(count);
+    }
+
+    private void validateId(int filmId, int userId) {
+        if (filmId < CORRECT_ID) {
+            throw new FilmValidationException(String.format("Передан некорректный ИД фильма - id = \"%d\" ", filmId));
+        }
+
+        if (userId < CORRECT_ID) {
+            throw new UserNotFoundException(
+                    String.format("Передан некорректный ИД пользователя - id = \"%d\" ", userId));
+        }
+
+        if (!inMemoryFilmStorage.findFilmId(filmId)) {
+            throw new FilmNotFoundException(String.format("Фильм с id = \"%d\" отсутствует", filmId));
+        }
+
+        if (!inMemoryUserStorage.findUserId(userId)) {
+            throw new UserNotFoundException(String.format("Пользователь с id = \"%d\" отсутствует", userId));
+        }
+    }
+
+    private void validate(Film film) {
+
+        if (film.getName() == null) {
+            throw new FilmValidationException("В запросе отсутствует название фильма - name - null");
+        }
+
+        if (film.getName().isBlank()) {
+            throw new FilmValidationException("Название фильма не должно быть пустым.");
+        }
+
+        if (!film.getReleaseDate().isAfter(VALIDATE_DATE_FILM)) {
+            throw new FilmValidationException("Неверная дата релиза.");
+        }
+
+        if (!(film.getDescription().length() <= MAX_LENGTH_DESCRIPTION)) {
+            throw new FilmValidationException("Описание фильма не должно превышать 200 символов.");
+        }
+
+        if (!(film.getDuration() > MIN_DURATION_FILM)) {
+            throw new FilmValidationException("Неверная продолжительность фильма.");
+        }
     }
 }

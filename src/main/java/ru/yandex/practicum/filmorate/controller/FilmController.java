@@ -24,6 +24,7 @@ public class FilmController {
     private final InMemoryFilmStorage inMemoryFilmStorage;
     private final InMemoryUserStorage inMemoryUserStorage;
     private final FilmService filmService;
+
     @GetMapping
     public List<Film> findAll() {
         return inMemoryFilmStorage.findAll();

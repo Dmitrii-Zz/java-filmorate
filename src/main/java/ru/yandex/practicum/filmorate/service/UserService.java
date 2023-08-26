@@ -1,32 +1,67 @@
 package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
+
+import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final InMemoryUserStorage inMemoryUserStorage;
+    private final UserStorage inMemoryUserStorage;
 
-    public void addFriend(User user, User friend) {
+    public List<User> findAll() {
+        return inMemoryUserStorage.findAll();
+    }
+
+    public User createUser(User user) {
+        userValidate(user);
+        validateName(user);
+        return inMemoryUserStorage.save(user);
+    }
+
+    public User getUser(int id) {
+        validationId(id);
+        return inMemoryUserStorage.getUserById(id);
+    }
+
+    public User updateUser(User user) {
+        userValidate(user);
+        validationId(user.getId());
+        validateName(user);
+        return inMemoryUserStorage.update(user);
+    }
+
+    public void addFriend(int id, int friendId) {
+        validationIdUserAndOtherId(id, friendId);
+        User user = inMemoryUserStorage.getUserById(id);
+        User friend = inMemoryUserStorage.getUserById(friendId);
         user.getFriends().add(friend.getId());
+
         if (!friend.getFriends().contains(user.getId())) {
-            addFriend(friend, user);
+            addFriend(friendId, id);
         }
     }
 
-    public void removeFriend(User user, User friend) {
+    public void removeFriend(int id, int friendId) {
+        validationIdUserAndOtherId(id, friendId);
+        User user = inMemoryUserStorage.getUserById(id);
+        User friend = inMemoryUserStorage.getUserById(friendId);
         user.getFriends().remove(friend.getId());
+
         if (friend.getFriends().contains(user.getId())) {
-            removeFriend(friend, user);
+            removeFriend(friendId, id);
         }
     }
 
     public List<User> findMutualFriends(int id, int otherId) {
-
+        validationIdUserAndOtherId(id, otherId);
         List<User> mutualFriends = new ArrayList<>();
         User user = inMemoryUserStorage.getUserById(id);
         User otherUser = inMemoryUserStorage.getUserById(otherId);
@@ -41,7 +76,7 @@ public class UserService {
     }
 
     public List<User> getFriends(int id) {
-
+        validationId(id);
         User user = inMemoryUserStorage.getUserById(id);
         List<User> friends = new ArrayList<>();
 
@@ -50,5 +85,68 @@ public class UserService {
         }
 
         return friends;
+    }
+
+    private void validationId(int id) {
+        if (id < CORRECT_ID) {
+            throw new UserNotFoundException(String.format("Передан неверный ИД пользователя - id = \"%d\" ", id));
+        }
+
+        if (!(inMemoryUserStorage.findUserId(id))) {
+            throw new UserNotFoundException(String.format("Пользователь с id = \"%d\" не найден", id));
+        }
+    }
+
+    private void userValidate(User user) {
+
+        if (user == null) {
+            throw new UserNotFoundException("В запросе отсутствует пользователь.");
+        }
+
+        if (user.getLogin() == null) {
+            throw new UserValidationException("Не передан логин - Login = null");
+        }
+
+        if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+            throw new UserValidationException("Логин не должен быть пустым и содержать пробелов.");
+        }
+
+        if (user.getBirthday() == null) {
+            throw new UserValidationException("Не передана дата рождения - Birthday = null");
+        }
+
+        if (!LocalDate.now().isAfter(user.getBirthday())) {
+            throw new UserValidationException("Некорректная дата рождения.");
+        }
+
+        if (user.getEmail() == null) {
+            throw new UserValidationException("Не передан email - Email = null");
+        }
+
+        if (user.getEmail().isBlank()) {
+            throw new UserValidationException("Передан пустой логин.");
+        }
+    }
+
+    private void validateName(User user) {
+        String name = user.getName();
+
+        if (name == null) {
+            user.setName(user.getLogin());
+            return;
+        }
+
+        if (name.isBlank()) {
+            user.setName(user.getLogin());
+        }
+    }
+
+    private void validationIdUserAndOtherId(int id, int id1) {
+        validationId(id);
+        validationId(id1);
+
+        if (id == id1) {
+            throw new UserValidationException("Нельзя добавить или удалить себя из списка друзей.");
+        }
     }
 }

@@ -18,40 +18,40 @@ import static ru.yandex.practicum.filmorate.Constants.MIN_DURATION_FILM;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    private final FilmStorage inMemoryFilmStorage;
-    private final UserStorage inMemoryUserStorage;
+    private final FilmStorage filmRepository;
+    private final UserStorage userRepository;
 
     public List<Film> findAll() {
-        return inMemoryFilmStorage.findAll();
+        return filmRepository.findAll();
     }
 
     public Film createFilm(Film film) {
         validateFilm(film);
-        return inMemoryFilmStorage.save(film);
+        return filmRepository.save(film);
     }
 
     public Film updateFilm(Film film) {
         validateFilm(film);
         validateIdFilm(film.getId());
-        return inMemoryFilmStorage.update(film);
+        return filmRepository.update(film);
     }
 
     public Film getFilm(int id) {
         validateIdFilm(id);
-        return inMemoryFilmStorage.getFilmById(id);
+        return filmRepository.getFilmById(id);
     }
 
     public void addLike(int filmId, int userId) {
         validateIdFilm(filmId);
         validateIdUser(userId);
-        Film film = inMemoryFilmStorage.getFilmById(filmId);
+        Film film = filmRepository.getFilmById(filmId);
         film.getLikes().add(userId);
     }
 
     public void deleteLike(int filmId, int userId) {
         validateIdFilm(filmId);
         validateIdUser(userId);
-        Film film = inMemoryFilmStorage.getFilmById(filmId);
+        Film film = filmRepository.getFilmById(filmId);
         film.getLikes().remove(userId);
     }
 
@@ -61,7 +61,7 @@ public class FilmService {
             throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
         }
 
-        return inMemoryFilmStorage.findAll().stream()
+        return filmRepository.findAll().stream()
                 .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
                 .limit(count)
                 .collect(Collectors.toList());
@@ -72,7 +72,7 @@ public class FilmService {
             throw new FilmValidationException(String.format("Передан некорректный ИД фильма - id = \"%d\"", id));
         }
 
-        if (!inMemoryFilmStorage.findFilmId(id)) {
+        if (!filmRepository.findFilmId(id)) {
             throw new FilmNotFoundException(String.format("Фильм с id = \"%d\" отсутствует", id));
         }
     }
@@ -83,7 +83,7 @@ public class FilmService {
                     String.format("Передан некорректный ИД пользователя - id = \"%d\"", id));
         }
 
-        if (!inMemoryUserStorage.findUserId(id)) {
+        if (!userRepository.findUserId(id)) {
             throw new UserNotFoundException(String.format("Пользователь с id = \"%d\" отсутствует", id));
         }
     }

@@ -14,34 +14,34 @@ import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserStorage inMemoryUserStorage;
+    private final UserStorage userRepository;
 
     public List<User> findAll() {
-        return inMemoryUserStorage.findAll();
+        return userRepository.findAll();
     }
 
     public User createUser(User user) {
         userValidate(user);
         validateName(user);
-        return inMemoryUserStorage.save(user);
+        return userRepository.save(user);
     }
 
     public User getUser(int id) {
         validationId(id);
-        return inMemoryUserStorage.getUserById(id);
+        return userRepository.getUserById(id);
     }
 
     public User updateUser(User user) {
         userValidate(user);
         validationId(user.getId());
         validateName(user);
-        return inMemoryUserStorage.update(user);
+        return userRepository.update(user);
     }
 
     public void addFriend(int id, int friendId) {
         validationIdUserAndOtherId(id, friendId);
-        User user = inMemoryUserStorage.getUserById(id);
-        User friend = inMemoryUserStorage.getUserById(friendId);
+        User user = userRepository.getUserById(id);
+        User friend = userRepository.getUserById(friendId);
         user.getFriends().add(friend.getId());
 
         if (!friend.getFriends().contains(user.getId())) {
@@ -51,8 +51,8 @@ public class UserService {
 
     public void removeFriend(int id, int friendId) {
         validationIdUserAndOtherId(id, friendId);
-        User user = inMemoryUserStorage.getUserById(id);
-        User friend = inMemoryUserStorage.getUserById(friendId);
+        User user = userRepository.getUserById(id);
+        User friend = userRepository.getUserById(friendId);
         user.getFriends().remove(friend.getId());
 
         if (friend.getFriends().contains(user.getId())) {
@@ -63,12 +63,12 @@ public class UserService {
     public List<User> findMutualFriends(int id, int otherId) {
         validationIdUserAndOtherId(id, otherId);
         List<User> mutualFriends = new ArrayList<>();
-        User user = inMemoryUserStorage.getUserById(id);
-        User otherUser = inMemoryUserStorage.getUserById(otherId);
+        User user = userRepository.getUserById(id);
+        User otherUser = userRepository.getUserById(otherId);
 
         for (Integer i : user.getFriends()) {
             if (otherUser.getFriends().contains(i)) {
-                mutualFriends.add(inMemoryUserStorage.getUserById(i));
+                mutualFriends.add(userRepository.getUserById(i));
             }
         }
 
@@ -77,11 +77,11 @@ public class UserService {
 
     public List<User> getFriends(int id) {
         validationId(id);
-        User user = inMemoryUserStorage.getUserById(id);
+        User user = userRepository.getUserById(id);
         List<User> friends = new ArrayList<>();
 
         for (Integer i : user.getFriends()) {
-            friends.add(inMemoryUserStorage.getUserById(i));
+            friends.add(userRepository.getUserById(i));
         }
 
         return friends;
@@ -92,7 +92,7 @@ public class UserService {
             throw new UserNotFoundException(String.format("Передан неверный ИД пользователя - id = \"%d\" ", id));
         }
 
-        if (!(inMemoryUserStorage.findUserId(id))) {
+        if (!(userRepository.findUserId(id))) {
             throw new UserNotFoundException(String.format("Пользователь с id = \"%d\" не найден", id));
         }
     }

@@ -1,14 +1,18 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
     int id;
@@ -21,4 +25,6 @@ public class Film {
     @NotNull
     LocalDate releaseDate;
     int duration;
+    @JsonIgnore
+    Set<Integer> likes;
 }

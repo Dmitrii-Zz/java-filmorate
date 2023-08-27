@@ -3,12 +3,10 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -16,57 +14,40 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    private final FilmRepository filmRepository;
-    private static final int MIN_DURATION_FILM = 0;
-    private static final int MAX_LENGTH_DESCRIPTION = 200;
-    private static final LocalDate VALIDATE_DATE_FILM = LocalDate.of(1895, 12, 28);
+    private final FilmService filmService;
 
     @GetMapping
-    public List<Film> findAll() {
-        return filmRepository.findAll();
+    public List<Film> findAllFilms() {
+        return filmService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable int id) {
+        return filmService.getFilm(id);
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
-
-        if (film == null) {
-            log.debug("Фильм отсутствует!");
-            throw new ValidationException("Фильм отсутствует!");
-        }
-
-        if (!validate(film)) {
-            log.debug("Валидация при создании фильма не пройдена!");
-            throw new ValidationException("Неверно указаны имя, описание или дата релиза.");
-        }
-
-        return filmRepository.save(film);
+    public Film createFilm(@Valid @RequestBody Film film) {
+        return filmService.createFilm(film);
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film film) {
-
-        if (!filmRepository.findFilmId(film.getId())) {
-            log.debug("Фильм с id '{}' отсутствует", film.getId());
-            throw new ValidationException("Неверно указан id фильма!");
-        }
-
-        if (!validate(film)) {
-            log.debug("Валидация при обновления фильма не пройдена!");
-            throw new ValidationException("Неверно указаны имя, описание или дата релиза.");
-        }
-
-        return filmRepository.update(film);
+    public Film updateFilm(@Valid @RequestBody Film film) {
+        return filmService.updateFilm(film);
     }
 
-    private boolean validate(Film film) {
+    @PutMapping("/{id}/like/{userId}")
+    public void addLikeFilm(@PathVariable int id, @PathVariable int userId) {
+        filmService.addLike(id, userId);
+    }
 
-        if (film.getName() == null) {
-            return false;
-        }
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLikeFilm(@PathVariable int id, @PathVariable int userId) {
+        filmService.deleteLike(id, userId);
+    }
 
-        return !film.getName().isBlank()
-               && film.getReleaseDate().isAfter(VALIDATE_DATE_FILM)
-               && film.getDescription().length() <= MAX_LENGTH_DESCRIPTION
-               && film.getDuration() > MIN_DURATION_FILM;
+    @GetMapping("/popular")
+    public List<Film> popularFilms(@RequestParam(defaultValue = "10") int count) {
+        return filmService.popularFilms(count);
     }
 }

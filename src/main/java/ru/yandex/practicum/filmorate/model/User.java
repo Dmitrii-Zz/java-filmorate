@@ -10,6 +10,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -29,4 +30,5 @@ public class User {
     LocalDate birthday;
     @JsonIgnore
     Set<Integer> friends;
+    Map<Integer, Boolean> friendshipStatus;
 }

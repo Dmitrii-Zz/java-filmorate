@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -27,4 +28,7 @@ public class Film {
     int duration;
     @JsonIgnore
     Set<Integer> likes;
+    Set<String> ganre;
+    String rating;
+
 }

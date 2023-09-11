@@ -11,34 +11,33 @@
 
 __1. Отобразить всех пользователей:__
 
-\```
+```
 SELECT (*)
-FROM user;
-\```
+FROM users;
+```
 
-__2. Отобразить все фильмы:__
+__2. Отобразить названия фильмов жанра "Ужас":__
 
-\```
+```
+SELECT films.name
+FROM films
+WHERE films.film_id = (SELECT genre_film.film_id
+                 FROM genre_film
+                 WHERE genre_id = (SELECT genre_id
+                                   FROM genres
+                                   WHERE name = 'Ужас')) AS film_horror;               
+```
+__3. Отобразить все фильмы:__
+
+```
 SELECT (*)  
-FROM film;
-\```
-
-__3. Отобразить имена пользователей, которые лайкнули фильм "Платформа":__
-
-\```
-SELECT name  
-FROM user  
-WHERE user_id = (SELECT likes.user_id  
-FROM likes  
-WHERE likes.film.id = (SELECT film.film_id  
-FROM film  
-WHERE film.name = 'Платформа'));
-\```
+FROM films;
+```
 
 __4. Отобразить существующие жанры фильмов:__
 
-\```
+```
 SELECT name  
-FROM genre
-\```
+FROM genres
+```
 

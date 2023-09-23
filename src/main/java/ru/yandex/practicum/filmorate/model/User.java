@@ -28,7 +28,7 @@ public class User {
     String name;
     @NotNull
     LocalDate birthday;
-    @JsonIgnore
     Set<Integer> friends;
+    @JsonIgnore
     Map<Integer, Boolean> friendshipStatus;
 }

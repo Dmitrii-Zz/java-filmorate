@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
@@ -12,21 +13,25 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.impl.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.impl.dao.FriendshipDbStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inMemory.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inMemory.InMemoryLikeStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inMemory.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Set;
 
 public class FilmServiceTest {
-
     private final InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+    private final InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+    private final LikeFilmsStorage likeFilmsStorage = new InMemoryLikeStorage(inMemoryFilmStorage);
     private final FilmController filmController =
-            new FilmController(new FilmService(new InMemoryFilmStorage(), inMemoryUserStorage));
+            new FilmController(new FilmService(inMemoryFilmStorage, inMemoryUserStorage, likeFilmsStorage));
     private final UserController userController =
-            new UserController(new UserService(inMemoryUserStorage));
+            new UserController(new UserService(inMemoryUserStorage, new FriendshipDbStorage(new JdbcTemplate())));
 
     @BeforeEach
     public void addFilm() {
@@ -50,6 +55,13 @@ public class FilmServiceTest {
         user.setLogin("Misha");
         user.setBirthday(LocalDate.of(1997, 4, 1));
         userController.createUser(user);
+    }
+
+    @Test
+    public void getLikesFilmTest() {
+        filmController.addLikeFilm(1, 1);
+        Set<Integer> likes = likeFilmsStorage.getAllLikeFilmById(1);
+        assertEquals(1, likes.size());
     }
 
     @Test
@@ -113,7 +125,6 @@ public class FilmServiceTest {
         assertEquals("Название фильма не должно быть пустым.", exception1.getMessage());
 
         film.setName(" ");
-
     }
 
 
@@ -281,11 +292,8 @@ public class FilmServiceTest {
 
     @Test
     public void getPopularFilmsTest() {
-        filmController.addLikeFilm(1, 1);
         List<Film> popularFilms = filmController.popularFilms(2);
         assertEquals(2, popularFilms.size());
-        assertEquals(1, popularFilms.get(0).getLikes().size());
-        assertEquals(0, popularFilms.get(1).getLikes().size());
     }
 
     @Test

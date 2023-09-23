@@ -47,8 +47,7 @@ public class GenreDbStorage implements GenreStorage {
                                           "ORDER BY gf.genre_id ASC;", filmId);
 
         SqlRowSet genresRows = jdbcTemplate.queryForRowSet(sqlRequest);
-
-        while(genresRows.next()) {
+        while (genresRows.next()) {
             genres.add(new Genre(genresRows.getInt("genre_id"), genresRows.getString("name")));
         }
 

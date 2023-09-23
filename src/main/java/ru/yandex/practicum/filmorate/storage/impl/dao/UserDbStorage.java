@@ -51,7 +51,7 @@ public class UserDbStorage implements UserStorage {
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM users");
-        while(userRows.next()) {
+        while (userRows.next()) {
             users.add(getUserFromDb(userRows));
         }
 
@@ -91,7 +91,7 @@ public class UserDbStorage implements UserStorage {
         Set<Integer> friends = new HashSet<>();
         String sqlRequest = String.format("SELECT friend_id FROM friends WHERE user_id = %d", userId);
         SqlRowSet friendsRows = jdbcTemplate.queryForRowSet(sqlRequest);
-        while(friendsRows.next()) {
+        while (friendsRows.next()) {
             friends.add(friendsRows.getInt("friend_id"));
         }
 

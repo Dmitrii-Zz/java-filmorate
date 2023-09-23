@@ -33,7 +33,7 @@ public class LikeFilmsDbRepository implements LikeFilmsStorage {
         String sqlRequest = String.format("SELECT user_id FROM likes WHERE film_id = %d", filmId);
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlRequest);
         Set<Integer> likes = new HashSet<>();
-        while(sqlRowSet.next()) {
+        while (sqlRowSet.next()) {
             likes.add(sqlRowSet.getInt("user_id"));
         }
 

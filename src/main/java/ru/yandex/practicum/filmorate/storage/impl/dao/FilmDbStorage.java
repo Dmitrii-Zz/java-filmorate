@@ -1,7 +1,6 @@
-package ru.yandex.practicum.filmorate.storage.impl;
+package ru.yandex.practicum.filmorate.storage.impl.dao;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -22,7 +21,6 @@ import java.util.Set;
 
 @Component
 @Primary
-@Slf4j
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -54,7 +52,6 @@ public class FilmDbStorage implements FilmStorage {
         String sqlRequest =
                 String.format("INSERT INTO films (name, description, release_date, duration, rating_id) " +
                         "VALUES (?, ?, ?, ?, ?)");
-        log.info("рейтинг фильма" + film.getMpa().getId());
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
@@ -69,7 +66,6 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setId((int) keyHolder.getKey());
         Set<Genre> genres = film.getGenres();
-
         if (genres != null) {
             for (Genre genre : genres) {
                 genreRepository.saveGenreFilm(film.getId(), genre.getId());
@@ -85,9 +81,9 @@ public class FilmDbStorage implements FilmStorage {
     public Film update(Film film) {
         String sqlRequest =
                 String.format("UPDATE films " +
-                        "SET name = '%s', description = '%s', release_date = '%s', " +
-                        "duration = '%d', rating_id = '%d' " +
-                        "WHERE film_id = '%d'",
+                              "SET name = '%s', description = '%s', release_date = '%s', " +
+                              "duration = '%d', rating_id = '%d' " +
+                              "WHERE film_id = '%d'",
                         film.getName(), film.getDescription(), film.getReleaseDate(),
                         film.getDuration(), film.getMpa().getId(), film.getId());
 
@@ -128,25 +124,27 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = new ArrayList<>();
 
         while(popularFilms.next()) {
-            log.info("добавляем популярный фильм " + popularFilms.getInt("film_id"));
             films.add(getFilmById(popularFilms.getInt("film_id")));
         }
 
-        log.info("Размер листа с фильмами " + films.size());
         return films;
     }
 
     private Film getFilmFromDb(SqlRowSet filmRows) {
+        String nameMpa = mpaRepository.findRatingById((filmRows.getInt("rating_id"))).getName();
+        Mpa mpa = new Mpa(filmRows.getInt("rating_id"), nameMpa);
+        Set<Genre> genres = genreRepository.findGenreByFilmId((filmRows.getInt("film_id")));
+        Set<Integer> likes = likeRepository.getAllLikeFilmById(filmRows.getInt("film_id"));
+
         return Film.builder()
                 .name(filmRows.getString("name"))
                 .description(filmRows.getString("description"))
                 .releaseDate((filmRows.getDate("release_date")).toLocalDate())
                 .duration(filmRows.getInt("duration"))
-                .mpa(new Mpa((filmRows.getInt("rating_id")),
-                        (mpaRepository.findRatingById((filmRows.getInt("rating_id")))).getName()))
+                .mpa(mpa)
                 .id(filmRows.getInt("film_id"))
-                .genres(genreRepository.findGenreByFilmId((filmRows.getInt("film_id"))))
-                .likes(likeRepository.getAllLikeFilmById(filmRows.getInt("film_id")))
+                .genres(genres)
+                .likes(likes)
                 .build();
     }
 }

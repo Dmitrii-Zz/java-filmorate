@@ -1,14 +1,12 @@
-package ru.yandex.practicum.filmorate.storage.impl;
+package ru.yandex.practicum.filmorate.storage.impl.dao;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
@@ -20,14 +18,12 @@ import java.util.Set;
 
 @Component
 @Primary
-@Slf4j
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public User getUserById(int id) {
-        log.info(String.format("Пришел id - %d", id));
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM users WHERE user_id = ?", id);
         userRows.next();
         return getUserFromDb(userRows);
@@ -36,10 +32,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User save(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
         String sqlRequest =
                 String.format("INSERT INTO users (name, email, login, birthday) VALUES (?, ?, ?, ?)");
-
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(sqlRequest, new String[] {"user_id"});
@@ -57,7 +51,6 @@ public class UserDbStorage implements UserStorage {
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM users");
-
         while(userRows.next()) {
             users.add(getUserFromDb(userRows));
         }
@@ -77,7 +70,8 @@ public class UserDbStorage implements UserStorage {
                 String.format("UPDATE users " +
                               "SET name = '%s', email = '%s', login = '%s', birthday = '%s' " +
                               "WHERE user_id = '%d'",
-                              user.getName(), user.getEmail(), user.getLogin(), user.getBirthday(), user.getId());
+                              user.getName(), user.getEmail(), user.getLogin(),
+                              user.getBirthday(), user.getId());
         jdbcTemplate.execute(sqlRequest);
         return getUserById(user.getId());
     }
@@ -97,11 +91,10 @@ public class UserDbStorage implements UserStorage {
         Set<Integer> friends = new HashSet<>();
         String sqlRequest = String.format("SELECT friend_id FROM friends WHERE user_id = %d", userId);
         SqlRowSet friendsRows = jdbcTemplate.queryForRowSet(sqlRequest);
-
         while(friendsRows.next()) {
             friends.add(friendsRows.getInt("friend_id"));
         }
-        log.info("Сет друзей равен " + friends.isEmpty() + ", " + friends.size());
+
         return friends;
     }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GenreService {
     private final GenreStorage genreRepository;
-    
+
     public List<Genre> findAllGenres() {
         return genreRepository.findAllGenres();
     }

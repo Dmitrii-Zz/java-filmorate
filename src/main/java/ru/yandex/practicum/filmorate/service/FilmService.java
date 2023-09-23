@@ -1,25 +1,30 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import static ru.yandex.practicum.filmorate.Constants.*;
 import static ru.yandex.practicum.filmorate.Constants.MIN_DURATION_FILM;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmRepository;
     private final UserStorage userRepository;
+    private final LikeFilmsStorage likeFilmRepository;
 
     public List<Film> findAll() {
         return filmRepository.findAll();
@@ -44,15 +49,15 @@ public class FilmService {
     public void addLike(int filmId, int userId) {
         validateIdFilm(filmId);
         validateIdUser(userId);
-        Film film = filmRepository.getFilmById(filmId);
-        film.getLikes().add(userId);
+        filmRepository.getFilmById(filmId).setLikes(createListLikes(filmId, userId));
+        likeFilmRepository.addLike(filmId, userId);
     }
+
 
     public void deleteLike(int filmId, int userId) {
         validateIdFilm(filmId);
         validateIdUser(userId);
-        Film film = filmRepository.getFilmById(filmId);
-        film.getLikes().remove(userId);
+        likeFilmRepository.deleteLike(filmId, userId);
     }
 
     public List<Film> popularFilms(int count) {
@@ -61,10 +66,17 @@ public class FilmService {
             throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
         }
 
-        return filmRepository.findAll().stream()
-                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmRepository.getPopularFilms(count);
+    }
+
+    private Set<Integer> createListLikes(int filmId, int userId) {
+        Set<Integer> likes = filmRepository.getFilmById(filmId).getLikes();
+        if (likes == null) {
+            likes = new HashSet<>();
+        }
+
+        likes.add(userId);
+        return likes;
     }
 
     private void validateIdFilm(int id) {

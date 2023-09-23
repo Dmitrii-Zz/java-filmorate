@@ -27,11 +27,11 @@ public class FilmDbStorage implements FilmStorage {
     private final MpaDbStorage mpaRepository;
     private final GenreStorage genreRepository;
     private final LikeFilmsStorage likeRepository;
+
     @Override
     public List<Film> findAll() {
         List<Film> films = new ArrayList<>();
         SqlRowSet filmsRows = jdbcTemplate.queryForRowSet("SELECT * FROM films");
-
         while(filmsRows.next()) {
             films.add(getFilmFromDb(filmsRows));
         }
@@ -122,7 +122,6 @@ public class FilmDbStorage implements FilmStorage {
 
         SqlRowSet popularFilms = jdbcTemplate.queryForRowSet(sqlRequest);
         List<Film> films = new ArrayList<>();
-
         while(popularFilms.next()) {
             films.add(getFilmById(popularFilms.getInt("film_id")));
         }

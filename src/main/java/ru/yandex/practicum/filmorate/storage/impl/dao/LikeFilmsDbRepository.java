@@ -15,6 +15,7 @@ import java.util.Set;
 @Primary
 public class LikeFilmsDbRepository implements LikeFilmsStorage {
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public void addLike(int filmId, int userId) {
         String sqlRequest = String.format("INSERT INTO likes (film_id, user_id) VALUES ('%d', '%d')", filmId, userId);

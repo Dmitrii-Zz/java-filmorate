@@ -17,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MpaDbStorage implements RatingStorage {
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public List<Mpa> findAllRating() {
         List<Mpa> mpas = new ArrayList<>();

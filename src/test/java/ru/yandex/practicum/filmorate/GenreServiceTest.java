@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GenreServiceTest {
     private final GenreService genreService = new GenreService(new GenreDbStorage(new JdbcTemplate()));
+
     @Test
     public void getPopularFilmsWrongCountTest() {
         final GenreNotFoundException exception = assertThrows(

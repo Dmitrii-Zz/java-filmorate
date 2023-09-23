@@ -32,7 +32,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> findAll() {
         List<Film> films = new ArrayList<>();
         SqlRowSet filmsRows = jdbcTemplate.queryForRowSet("SELECT * FROM films");
-        while(filmsRows.next()) {
+        while (filmsRows.next()) {
             films.add(getFilmFromDb(filmsRows));
         }
 
@@ -122,7 +122,7 @@ public class FilmDbStorage implements FilmStorage {
 
         SqlRowSet popularFilms = jdbcTemplate.queryForRowSet(sqlRequest);
         List<Film> films = new ArrayList<>();
-        while(popularFilms.next()) {
+        while (popularFilms.next()) {
             films.add(getFilmById(popularFilms.getInt("film_id")));
         }
 

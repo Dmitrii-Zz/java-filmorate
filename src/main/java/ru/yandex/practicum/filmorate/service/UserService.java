@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.time.LocalDate;
@@ -15,6 +16,12 @@ import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userRepository;
+    private final FriendshipStorage friendshipRepository;
+
+    public User getUser(int id) {
+        validationId(id);
+        return userRepository.getUserById(id);
+    }
 
     public List<User> findAll() {
         return userRepository.findAll();
@@ -24,11 +31,6 @@ public class UserService {
         userValidate(user);
         validateName(user);
         return userRepository.save(user);
-    }
-
-    public User getUser(int id) {
-        validationId(id);
-        return userRepository.getUserById(id);
     }
 
     public User updateUser(User user) {
@@ -43,10 +45,7 @@ public class UserService {
         User user = userRepository.getUserById(id);
         User friend = userRepository.getUserById(friendId);
         user.getFriends().add(friend.getId());
-
-        if (!friend.getFriends().contains(user.getId())) {
-            addFriend(friendId, id);
-        }
+        friendshipRepository.addFriend(id, friendId);
     }
 
     public void removeFriend(int id, int friendId) {
@@ -54,10 +53,7 @@ public class UserService {
         User user = userRepository.getUserById(id);
         User friend = userRepository.getUserById(friendId);
         user.getFriends().remove(friend.getId());
-
-        if (friend.getFriends().contains(user.getId())) {
-            removeFriend(friendId, id);
-        }
+        friendshipRepository.removeFriend(id, friendId);
     }
 
     public List<User> findMutualFriends(int id, int otherId) {

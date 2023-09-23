@@ -1,7 +1,6 @@
-package ru.yandex.practicum.filmorate.storage.impl;
+package ru.yandex.practicum.filmorate.storage.impl.dao;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -17,7 +16,6 @@ import java.util.Set;
 @Component
 @Primary
 @RequiredArgsConstructor
-@Slf4j
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
@@ -25,7 +23,6 @@ public class GenreDbStorage implements GenreStorage {
     public List<Genre> findAllGenres() {
         List<Genre> genres = new ArrayList<>();
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet("SELECT * FROM genres");
-
         while (genreRows.next()) {
             genres.add(getGenreFromDb(genreRows));
         }
@@ -52,10 +49,9 @@ public class GenreDbStorage implements GenreStorage {
         SqlRowSet genresRows = jdbcTemplate.queryForRowSet(sqlRequest);
 
         while(genresRows.next()) {
-            log.info("Сейчас genre_id равен " + genresRows.getInt("genre_id"));
             genres.add(new Genre(genresRows.getInt("genre_id"), genresRows.getString("name")));
         }
-        log.info("Размер списка с жанрами " + genres.size());
+
         return genres;
     }
 
@@ -63,7 +59,6 @@ public class GenreDbStorage implements GenreStorage {
     public void saveGenreFilm(int filmId, int genreId) {
         String sqlRequest =
                 String.format("INSERT INTO genre_film (film_id, genre_id) VALUES ('%d', '%d')", filmId, genreId);
-
         jdbcTemplate.execute(sqlRequest);
     }
 

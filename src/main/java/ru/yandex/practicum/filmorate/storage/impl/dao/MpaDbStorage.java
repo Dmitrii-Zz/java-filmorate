@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.impl;
+package ru.yandex.practicum.filmorate.storage.impl.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -21,17 +21,16 @@ public class MpaDbStorage implements RatingStorage {
     public List<Mpa> findAllRating() {
         List<Mpa> mpas = new ArrayList<>();
         SqlRowSet ratingRows = jdbcTemplate.queryForRowSet("SELECT * FROM rating");
-
         while (ratingRows.next()) {
             mpas.add(getRatingFromDb(ratingRows));
         }
+
         return mpas;
     }
 
     @Override
     public Mpa findRatingById(int id) {
         SqlRowSet ratingRows = jdbcTemplate.queryForRowSet("SELECT * FROM rating WHERE rating_id = ?", id);
-
         if (ratingRows.next()) {
             return getRatingFromDb(ratingRows);
         }

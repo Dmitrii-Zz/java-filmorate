@@ -1,7 +1,6 @@
-package ru.yandex.practicum.filmorate.storage.impl;
+package ru.yandex.practicum.filmorate.storage.impl.dao;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -13,14 +12,12 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 @Primary
 public class LikeFilmsDbRepository implements LikeFilmsStorage {
     private final JdbcTemplate jdbcTemplate;
     @Override
     public void addLike(int filmId, int userId) {
         String sqlRequest = String.format("INSERT INTO likes (film_id, user_id) VALUES ('%d', '%d')", filmId, userId);
-        log.info(String.format("Юзер %d ставит лайк фильму %d", userId, filmId));
         jdbcTemplate.execute(sqlRequest);
     }
 
@@ -38,6 +35,7 @@ public class LikeFilmsDbRepository implements LikeFilmsStorage {
         while(sqlRowSet.next()) {
             likes.add(sqlRowSet.getInt("user_id"));
         }
+
         return likes;
     }
 }

@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.impl.inMemory;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.storage.impl.inMemory.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
 
 import java.util.HashMap;
@@ -15,6 +14,7 @@ import java.util.Set;
 public class InMemoryLikeStorage implements LikeFilmsStorage {
     private final Map<Integer, Set<Integer>> likes = new HashMap<>();
     private final InMemoryFilmStorage inMemoryFilmStorage;
+
     @Override
     public void addLike(int filmId, int userId) {
         Set<Integer> filmLikes = likes.getOrDefault(filmId, new HashSet<>());

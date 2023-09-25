@@ -14,8 +14,9 @@ public class FriendshipDbStorage implements FriendshipStorage {
 
     @Override
     public void addFriend(int userId, int friendId) {
-        String sqlRequest = String.format("INSERT INTO friends (user_id, friend_id, friendship_status) VALUES " +
-                "('%d', '%d', '%b')", userId, friendId, true);
+        String sqlRequest =
+                String.format("MERGE INTO friends (user_id, friend_id) KEY (user_id, friend_id) VALUES (%d, %d);",
+                        userId, friendId, true);
         jdbcTemplate.execute(sqlRequest);
     }
 

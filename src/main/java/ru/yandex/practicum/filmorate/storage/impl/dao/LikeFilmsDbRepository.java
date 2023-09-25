@@ -18,7 +18,9 @@ public class LikeFilmsDbRepository implements LikeFilmsStorage {
 
     @Override
     public void addLike(int filmId, int userId) {
-        String sqlRequest = String.format("INSERT INTO likes (film_id, user_id) VALUES ('%d', '%d')", filmId, userId);
+        String sqlRequest =
+                String.format("MERGE INTO likes (film_id, user_id) KEY (film_id, user_id) VALUES (%d, %d);",
+                        filmId, userId);
         jdbcTemplate.execute(sqlRequest);
     }
 

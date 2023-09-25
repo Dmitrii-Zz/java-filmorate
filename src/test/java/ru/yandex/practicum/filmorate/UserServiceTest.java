@@ -8,8 +8,8 @@ import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.impl.inMemory.InMemoryFriendshipStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inMemory.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryFriendshipStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;

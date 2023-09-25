@@ -14,9 +14,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.impl.dao.FriendshipDbStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inMemory.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inMemory.InMemoryLikeStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inMemory.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryLikeStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
 import static org.junit.jupiter.api.Assertions.*;
 

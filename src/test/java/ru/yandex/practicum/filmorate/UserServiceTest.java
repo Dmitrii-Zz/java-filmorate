@@ -8,7 +8,8 @@ import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryFriendshipStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,8 +17,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
-    private final UserController userController =
-            new UserController(new UserService(new InMemoryUserStorage()));
+
+    private final InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+    private final InMemoryFriendshipStorage inMemoryFriendshipStorage =
+            new InMemoryFriendshipStorage(inMemoryUserStorage);
+    private final UserService userService = new UserService(inMemoryUserStorage, inMemoryFriendshipStorage);
+    private final UserController userController = new UserController(userService);
 
     @BeforeEach
     public void createUser() {

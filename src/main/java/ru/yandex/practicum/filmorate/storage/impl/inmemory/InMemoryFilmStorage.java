@@ -15,6 +15,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
+    public List<Film> searchFilms(String query, List<String> by){//(String query, List<String> by) {
+        return new ArrayList<>();
+    }
+
+    @Override
     public List<Film> findAll() {
         return new ArrayList<>(films.values());
     }

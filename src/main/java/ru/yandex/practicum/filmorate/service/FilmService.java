@@ -15,8 +15,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ru.yandex.practicum.filmorate.Constants.*;
+import static ru.yandex.practicum.filmorate.Constants.CORRECT_COUNT;
+import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
+import static ru.yandex.practicum.filmorate.Constants.MAX_LENGTH_DESCRIPTION;
 import static ru.yandex.practicum.filmorate.Constants.MIN_DURATION_FILM;
+import static ru.yandex.practicum.filmorate.Constants.VALIDATE_DATE_FILM;
 
 @Service
 @Slf4j
@@ -77,6 +80,10 @@ public class FilmService {
 
         likes.add(userId);
         return likes;
+    }
+
+    public List<Film> searchFilms(String query, List<String> by) {
+        return filmRepository.searchFilms(query, by);
     }
 
     private void validateIdFilm(int id) {

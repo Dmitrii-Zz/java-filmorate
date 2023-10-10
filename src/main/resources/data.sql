@@ -13,7 +13,6 @@ INSERT INTO rating (name) VALUES
 	('R'),
 	('NC-17');
 
-
 INSERT INTO films (film_id, name, description, release_date, duration, rating_id) values (1, 'white fang', 'description1', '2000-12-03', 120, 4);
 INSERT INTO films (film_id, name, description, release_date, duration, rating_id) values (3, 'Old tree', 'description3', '2000-12-26', 182, 1);
 INSERT INTO films (film_id, name, description, release_date, duration, rating_id) values (2, 'Java for white teapot', 'description1', '2000-12-03', 140, 2);

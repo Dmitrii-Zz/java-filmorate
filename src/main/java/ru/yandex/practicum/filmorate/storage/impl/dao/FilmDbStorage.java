@@ -155,15 +155,15 @@ public class FilmDbStorage implements FilmStorage {
                     int mpaId = resultSet.getInt("rating_id");
                     int filmId = resultSet.getInt("film_id");
                     return Film.builder()
-                            .name(resultSet.getString("name")) //
+                            .name(resultSet.getString("name"))
                             .description(resultSet.getString("description"))
                             .releaseDate((resultSet.getDate("release_date")).toLocalDate())
                             .duration(resultSet.getInt("duration"))
                             .mpa(new Mpa(mpaId, jdbcTemplate.queryForObject(
-                                    "SELECT name FROM rating where rating_id = ?",
-                                    String.class, mpaId)))
+                                    "SELECT name FROM rating WHERE rating_id = ?", String.class, mpaId)))
                             .id(filmId)
-                            .rate(jdbcTemplate.queryForObject("select count(user_id) from likes WHERE film_id=?", Integer.class, filmId))
+                            .rate(jdbcTemplate.queryForObject(
+                                    "SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmId))
                             .genres(genreRepository.findGenreByFilmId(filmId))
                             .director(findDirectorsFilm(filmId))
                             .build();
@@ -174,16 +174,17 @@ public class FilmDbStorage implements FilmStorage {
         if ((query != null) && ((by != null) && (by.contains("title") && !by.contains("director")))) {
 
             for (Film f : films) {
-                if (f.getName().contains(query)) {
+                if (f.getName().toLowerCase().contains(query.toLowerCase())) {
                     findFilms.add(f);
                 }
             }
             return sortFilms(findFilms);
 
         } else if ((query != null) && ((by != null) && (by.contains("director") && !by.contains("title")))) {
+
             for (Film f : films) {
                 for (Director d : findDirectorsFilm(f.getId())) {
-                    if (d.getName().contains(query)) {
+                    if (d.getName().toLowerCase().contains(query.toLowerCase())) {
                         if (findFilms.contains(f)) {
                             break;
                         }
@@ -197,7 +198,7 @@ public class FilmDbStorage implements FilmStorage {
 
             for (Film f : films) {
                 for (Director d : findDirectorsFilm(f.getId())) {
-                    if (d.getName().contains(query) || (f.getName().contains(query))) {
+                    if (d.getName().toLowerCase().contains(query.toLowerCase()) || (f.getName().toLowerCase().contains(query.toLowerCase()))) {
                         if (findFilms.contains(f)) {
                             break;
                         }

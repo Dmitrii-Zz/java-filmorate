@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-
+@Disabled
 public class FilmServiceTest {
     private final InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
     private final InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();

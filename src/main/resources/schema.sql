@@ -30,7 +30,6 @@ CREATE TABLE IF NOT EXISTS films (
 	rating_id INTEGER REFERENCES rating (rating_id)
 );
 
-
 CREATE TABLE IF NOT EXISTS director_film (
 	film_id INTEGER REFERENCES films (film_id),
 	director_id INTEGER REFERENCES directors (director_id)

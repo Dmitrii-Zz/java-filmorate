@@ -12,7 +12,3 @@ INSERT INTO rating (name) VALUES
 	('PG-13'),
 	('R'),
 	('NC-17');
-
-INSERT INTO directors (name) VALUES
-('Jack London'),
-('Brush Brush');

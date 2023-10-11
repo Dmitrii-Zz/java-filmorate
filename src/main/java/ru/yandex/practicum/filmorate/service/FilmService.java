@@ -3,10 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
@@ -25,6 +27,7 @@ public class FilmService {
     private final FilmStorage filmRepository;
     private final UserStorage userRepository;
     private final LikeFilmsStorage likeFilmRepository;
+    private final DirectorStorage directorRepository;
 
     public List<Film> findAll() {
         return filmRepository.findAll();
@@ -67,6 +70,11 @@ public class FilmService {
         }
 
         return filmRepository.getPopularFilms(count);
+    }
+
+    public List<Film> getFilmsByDirector(int id, String sortBy) {
+        directorRepository.findDirectorById(id);
+        return filmRepository.getFilmsByDirector(id, sortBy);
     }
 
     private Set<Integer> createListLikes(int filmId, int userId) {
@@ -124,6 +132,10 @@ public class FilmService {
 
         if (film.getDuration() <= MIN_DURATION_FILM) {
             throw new FilmValidationException("Продолжительность фильма не может быть отрицательной.");
+        }
+
+        if (film.getDirector() == null) {
+            throw new DirectorNotFoundException("У фильма отсутствует режиссер.");
         }
     }
 }

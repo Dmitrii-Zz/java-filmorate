@@ -29,4 +29,5 @@ public class Film {
     @JsonIgnore
     Set<Integer> likes;
     Set<Genre> genres;
+    Set<Director> director;
 }

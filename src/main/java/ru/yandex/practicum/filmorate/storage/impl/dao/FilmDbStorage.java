@@ -255,6 +255,7 @@ public class FilmDbStorage implements FilmStorage {
                 .id(filmRows.getInt("film_id"))
                 .genres(genres)
                 .rate(jdbcTemplate.queryForObject("SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmRows.getInt("film_id")))
+                .director(findDirectorsFilm(filmRows.getInt("film_id")))
                 .likes(likes)
                 .build();
     }

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
@@ -59,7 +58,6 @@ public class FilmService {
         likeFilmRepository.addLike(filmId, userId);
     }
 
-
     public void deleteLike(int filmId, int userId) {
         validateIdFilm(filmId);
         validateIdUser(userId);
@@ -95,6 +93,11 @@ public class FilmService {
     public List<Film> searchFilms(String query, List<String> by, int count) {
         validateCount(count);
         return filmRepository.searchFilms(query, by, count);
+    }
+
+    public void deleteFilmById(int filmId) {
+        validateIdFilm(filmId);
+        filmRepository.deleteFilmById(filmId);
     }
 
     private void validateIdFilm(int id) {
@@ -142,10 +145,6 @@ public class FilmService {
 
         if (film.getDuration() <= MIN_DURATION_FILM) {
             throw new FilmValidationException("Продолжительность фильма не может быть отрицательной.");
-        }
-
-        if (film.getDirector() == null) {
-            throw new DirectorNotFoundException("У фильма отсутствует режиссер.");
         }
     }
 }

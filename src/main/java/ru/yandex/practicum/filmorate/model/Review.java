@@ -5,16 +5,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Review {
 
     Integer reviewId;
+
     String content;
-    boolean isPositive;
+
+    Boolean isPositive;
+
+    @NotNull
     Integer userId;
+
+    @NotNull
     Integer filmId;
+
     Integer useful;
 
 }

@@ -57,3 +57,9 @@ CREATE TABLE IF NOT EXISTS reviews (
     useful INTEGER
 );
 
+CREATE TABLE IF NOT EXISTS reviews_likes (
+	review_like_id INTEGER primary key auto_increment,
+	review_id INTEGER REFERENCES reviews (review_id),
+	user_id INTEGER REFERENCES users (user_id),
+	is_positive boolean default 'true'
+);

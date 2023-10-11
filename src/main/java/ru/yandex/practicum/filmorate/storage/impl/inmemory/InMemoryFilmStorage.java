@@ -51,4 +51,9 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .limit(count)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Film> getFilmsByDirector(int id, String sortBy) {
+        return null;
+    }
 }

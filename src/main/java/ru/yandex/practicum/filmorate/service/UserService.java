@@ -1,4 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
@@ -8,7 +9,8 @@ import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
 
@@ -81,6 +83,10 @@ public class UserService {
         }
 
         return friends;
+    }
+
+    public void deleteUserById(int userId) {
+        userRepository.deleteUserById(userId);
     }
 
     private void validationId(int id) {

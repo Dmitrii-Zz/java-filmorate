@@ -18,17 +18,23 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     int id;
+
     @Email
     @NotBlank
     @NotNull
     String email;
+
     @NotBlank
     @NotNull
     String login;
+
     String name;
+
     @NotNull
     LocalDate birthday;
+
     Set<Integer> friends;
+
     @JsonIgnore
     Map<Integer, Boolean> friendshipStatus;
 }

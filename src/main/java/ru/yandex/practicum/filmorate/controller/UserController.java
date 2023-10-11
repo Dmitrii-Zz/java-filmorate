@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -54,4 +53,10 @@ public class UserController {
     public List<User> findMutualFriends(@PathVariable int id, @PathVariable int otherId) {
         return userService.findMutualFriends(id, otherId);
     }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUserById(@PathVariable int userId) {
+        userService.deleteUserById(userId);
+    }
+
 }

@@ -37,7 +37,7 @@ public class FilmDbStorage implements FilmStorage {
     private final DirectorFilmStorage directorFilmRepository;
     private final DirectorStorage directorRepository;
 
-    public Set<Director> findDirectorsFilm(int id) { //Пригодится, если в getFilmFromDb сделать строчку .director с вызовом этого метода
+    public Set<Director> findDirectorsFilm(int id) {
         List<Integer> directorsIds = jdbcTemplate.queryForList("SELECT director_film.director_id FROM director_film WHERE film_id=?", Integer.class, id);
         Set<Director> directors = new HashSet<>();
         for (Integer j : directorsIds) {
@@ -232,6 +232,12 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getFilmsByDirector(int id, String sortBy) {
 
         return null;
+    }
+
+    public void deleteFilmById(int filmId){
+        jdbcTemplate.update("DELETE FROM genre_film WHERE film_id=?", filmId);
+        jdbcTemplate.update("DELETE FROM likes WHERE film_id=?", filmId);
+        jdbcTemplate.update("DELETE FROM films WHERE film_id=?", filmId);
     }
 
     private Film getFilmFromDb(SqlRowSet filmRows) {

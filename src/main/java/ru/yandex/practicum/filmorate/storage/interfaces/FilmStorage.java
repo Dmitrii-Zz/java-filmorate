@@ -18,5 +18,5 @@ public interface FilmStorage {
 
     List<Film> getPopularFilms(int count);
 
-    List<Film> searchFilms(String query, List<String> by);
+    List<Film> searchFilms(String query, List<String> by, int count);
 }

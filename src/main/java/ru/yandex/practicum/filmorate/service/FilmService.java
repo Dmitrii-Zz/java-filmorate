@@ -64,12 +64,14 @@ public class FilmService {
     }
 
     public List<Film> popularFilms(int count) {
+        validateCount(count);
+        return filmRepository.getPopularFilms(count);
+    }
 
+    public void validateCount(int count) {
         if (count < CORRECT_COUNT) {
             throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
         }
-
-        return filmRepository.getPopularFilms(count);
     }
 
     private Set<Integer> createListLikes(int filmId, int userId) {
@@ -82,8 +84,9 @@ public class FilmService {
         return likes;
     }
 
-    public List<Film> searchFilms(String query, List<String> by) {
-        return filmRepository.searchFilms(query, by);
+    public List<Film> searchFilms(String query, List<String> by, int count) {
+        validateCount(count);
+        return filmRepository.searchFilms(query, by, count);
     }
 
     private void validateIdFilm(int id) {

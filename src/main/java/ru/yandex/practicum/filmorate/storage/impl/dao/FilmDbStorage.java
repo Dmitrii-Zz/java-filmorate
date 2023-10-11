@@ -32,7 +32,7 @@ public class FilmDbStorage implements FilmStorage {
     private final GenreStorage genreRepository;
     private final LikeFilmsStorage likeRepository;
 
-    public Set<Director> findDirectorsFilm(int id) { //Удалить перед отправкой!!!!!!!!!!
+    public Set<Director> findDirectorsFilm(int id) { //Пригодится, если в getFilmFromDb сделать строчку .director с вызовом этого метода
         List<Integer> directorsIds = jdbcTemplate.queryForList("SELECT director_film.director_id FROM director_film WHERE film_id=?", Integer.class, id);
         Set<Director> directors = new HashSet<>();
         for (Integer j : directorsIds) {
@@ -148,40 +148,21 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> searchFilms(String query, List<String> by) {
-        String sqlRequest = "SELECT * FROM films";
-        List<Film> films = jdbcTemplate.query(sqlRequest,
-                (resultSet, rowNum) -> {
-                    int mpaId = resultSet.getInt("rating_id");
-                    int filmId = resultSet.getInt("film_id");
-                    return Film.builder()
-                            .name(resultSet.getString("name"))
-                            .description(resultSet.getString("description"))
-                            .releaseDate((resultSet.getDate("release_date")).toLocalDate())
-                            .duration(resultSet.getInt("duration"))
-                            .mpa(new Mpa(mpaId, jdbcTemplate.queryForObject(
-                                    "SELECT name FROM rating WHERE rating_id = ?", String.class, mpaId)))
-                            .id(filmId)
-                            .rate(jdbcTemplate.queryForObject(
-                                    "SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmId))
-                            .genres(genreRepository.findGenreByFilmId(filmId))
-                            .director(findDirectorsFilm(filmId))
-                            .build();
-                });
+    public List<Film> searchFilms(String query, List<String> by, int count) {
+        List<Film> films = getPopularFilms(count);
 
         List<Film> findFilms = new ArrayList<>();
 
         if ((query != null) && ((by != null) && (by.contains("title") && !by.contains("director")))) {
-
             for (Film f : films) {
                 if (f.getName().toLowerCase().contains(query.toLowerCase())) {
                     findFilms.add(f);
                 }
             }
             return sortFilms(findFilms);
+        }
 
-        } else if ((query != null) && ((by != null) && (by.contains("director") && !by.contains("title")))) {
-
+        if ((query != null) && ((by != null) && (by.contains("director") && !by.contains("title")))) {
             for (Film f : films) {
                 for (Director d : findDirectorsFilm(f.getId())) {
                     if (d.getName().toLowerCase().contains(query.toLowerCase())) {
@@ -193,9 +174,9 @@ public class FilmDbStorage implements FilmStorage {
                 }
             }
             return sortFilms(findFilms);
+        }
 
-        } else if ((query != null) && ((by != null) && (by.contains("title") && (by.contains("director"))))) {
-
+        if ((query != null) && ((by != null) && (by.contains("title") && (by.contains("director"))))) {
             for (Film f : films) {
                 for (Director d : findDirectorsFilm(f.getId())) {
                     if (d.getName().toLowerCase().contains(query.toLowerCase()) || (f.getName().toLowerCase().contains(query.toLowerCase()))) {
@@ -207,13 +188,14 @@ public class FilmDbStorage implements FilmStorage {
                 }
             }
             return sortFilms(findFilms);
-
-        } else if ((query == null) && (by == null)) {
-            return sortFilms(films);
-
-        } else {
-            throw new FilmNotFoundException("Wrong parameters, 'query' can't be empty and 'by' mast be one of: title / director / title,director");
         }
+
+        if ((query == null) && (by == null)) {
+            return sortFilms(films);
+        }
+
+        throw new FilmNotFoundException("Wrong parameters, 'query' can't be empty and 'by' mast be one of: title / director / title,director");
+
     }
 
     public List<Film> sortFilms(List<Film> films) {
@@ -236,6 +218,7 @@ public class FilmDbStorage implements FilmStorage {
                 .mpa(mpa)
                 .id(filmRows.getInt("film_id"))
                 .genres(genres)
+                .rate(jdbcTemplate.queryForObject("SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmRows.getInt("film_id")))
                 .likes(likes)
                 .build();
     }

@@ -17,7 +17,4 @@ public class Director {
         this.id = id;
         this.name = name;
     }
-
-    public Director() {}
-
 }

@@ -144,8 +144,8 @@ public class FilmService {
             throw new FilmValidationException("Продолжительность фильма не может быть отрицательной.");
         }
 
-//        if (film.getDirector() == null) {
-//            throw new DirectorNotFoundException("У фильма отсутствует режиссер.");
-//        }
+        if (film.getDirector() == null) {
+            throw new DirectorNotFoundException("У фильма отсутствует режиссер.");
+        }
     }
 }

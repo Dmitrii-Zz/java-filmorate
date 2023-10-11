@@ -11,9 +11,8 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Set;
 
-
-@Builder
 @Data
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
     int id;

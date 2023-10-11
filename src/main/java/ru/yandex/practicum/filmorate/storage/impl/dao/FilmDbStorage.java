@@ -7,12 +7,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.*;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -27,6 +26,8 @@ public class FilmDbStorage implements FilmStorage {
     private final MpaDbStorage mpaRepository;
     private final GenreStorage genreRepository;
     private final LikeFilmsStorage likeRepository;
+    private final DirectorFilmStorage directorFilmRepository;
+    private final DirectorStorage directorRepository;
 
     @Override
     public List<Film> findAll() {
@@ -72,6 +73,14 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
 
+        Set<Director> directors = film.getDirector();
+        if (directors != null) {
+            for (Director director : directors) {
+                directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
+                director.setName(directorRepository.getDirectorById(director.getId()).getName());
+            }
+        }
+
         film.setGenres(genreRepository.findGenreByFilmId(film.getId()));
         film.setMpa(mpaRepository.findRatingById(film.getMpa().getId()));
         return film;
@@ -95,6 +104,15 @@ public class FilmDbStorage implements FilmStorage {
             genreRepository.deleteGenreFilm(film.getId());
             for (Genre genre : genres) {
                 genreRepository.saveGenreFilm(film.getId(), genre.getId());
+            }
+        }
+
+        Set<Director> directors = film.getDirector();
+
+        if (directors != null) {
+            for (Director director : directors) {
+                directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
+                director.setName(directorRepository.getDirectorById(director.getId()).getName());
             }
         }
 
@@ -127,6 +145,12 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         return films;
+    }
+
+    @Override
+    public List<Film> getFilmsByDirector(int id, String sortBy) {
+
+        return null;
     }
 
     private Film getFilmFromDb(SqlRowSet filmRows) {

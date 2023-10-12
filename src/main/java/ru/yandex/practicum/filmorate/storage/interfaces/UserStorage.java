@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.interfaces;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;

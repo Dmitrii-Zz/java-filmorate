@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,6 +68,12 @@ public class FilmService {
         }
 
         return filmRepository.getPopularFilms(count);
+    }
+
+    public Collection<Film> commonFilms(Integer userId, Integer friendId) {
+        validateIdUser(userId);
+        validateIdUser(friendId);
+        return filmRepository.getCommonFilms(userId, friendId);
     }
 
     private Set<Integer> createListLikes(int filmId, int userId) {

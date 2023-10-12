@@ -73,11 +73,12 @@ public class FilmDbStorage implements FilmStorage {
                 genreRepository.saveGenreFilm(film.getId(), genre.getId());
             }
         }
-
         Set<Director> directors = film.getDirector();
-        for (Director director : directors) {
-            directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
-            director.setName(directorRepository.getDirectorById(director.getId()).getName());
+        if (directors != null) {
+            for (Director director : directors) {
+                directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
+                director.setName(directorRepository.getDirectorById(director.getId()).getName());
+            }
         }
 
         film.setGenres(genreRepository.findGenreByFilmId(film.getId()));
@@ -107,9 +108,11 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         Set<Director> directors = film.getDirector();
-        for (Director director : directors) {
-            directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
-            director.setName(directorRepository.getDirectorById(director.getId()).getName());
+        if (directors != null) {
+            for (Director director : directors) {
+                directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
+                director.setName(directorRepository.getDirectorById(director.getId()).getName());
+            }
         }
 
         film.setGenres(genreRepository.findGenreByFilmId(film.getId()));

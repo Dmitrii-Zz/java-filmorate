@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -235,8 +234,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public void deleteFilmById(int filmId){
-        jdbcTemplate.update("DELETE FROM genre_film WHERE film_id=?", filmId);
-        jdbcTemplate.update("DELETE FROM likes WHERE film_id=?", filmId);
         jdbcTemplate.update("DELETE FROM films WHERE film_id=?", filmId);
     }
 

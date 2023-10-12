@@ -15,6 +15,7 @@ import static ru.yandex.practicum.filmorate.Constants.MIN_DIRECTOR_ID;
 @RequiredArgsConstructor
 public class DirectorService {
     private final DirectorDbStorage directorDbStorage;
+
     public Director createDirector(Director director) {
         validationDirectorId(director.getId());
         return directorDbStorage.createDirector(director);

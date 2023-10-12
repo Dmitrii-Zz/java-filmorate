@@ -13,6 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DirectorController {
     private final DirectorService directorService;
+
     @GetMapping
     public List<Director> findAll() {
         return directorService.findAll();

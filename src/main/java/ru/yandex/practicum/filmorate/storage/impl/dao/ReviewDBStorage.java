@@ -1,13 +1,16 @@
 package ru.yandex.practicum.filmorate.storage.impl.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ReviewNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 
@@ -18,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Component
 @Primary
 @RequiredArgsConstructor
@@ -32,16 +36,24 @@ public class ReviewDBStorage implements ReviewStorage {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement= connection.prepareStatement(sqlQuery, new String[]{"id"});
-            preparedStatement.setString(1, review.getContent());
-            preparedStatement.setBoolean(2, review.getIsPositive());
-            preparedStatement.setInt(3, review.getUserId());
-            preparedStatement.setInt(4, review.getFilmId());
-            return preparedStatement;
-        }, keyHolder);
+        if (review.getUserId() > 0 && review.getFilmId() > 0) {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery, new String[]{"review_id"});
+                preparedStatement.setString(1, review.getContent());
+                preparedStatement.setBoolean(2, review.getIsPositive());
+                preparedStatement.setInt(3, review.getUserId());
+                preparedStatement.setInt(4, review.getFilmId());
+                return preparedStatement;
+            }, keyHolder);
 
-        review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+            review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+
+        } else if (review.getUserId() < 0) {
+            throw new UserNotFoundException("User with id < 0 does not exist");
+        } else if (review.getFilmId() < 0) {
+            throw new FilmNotFoundException("Film with id < 0 does not exist");
+        }
+
         return review;
     }
 
@@ -90,9 +102,9 @@ public class ReviewDBStorage implements ReviewStorage {
         String sqlQuery;
 
         if (filmId == 0) {
-            sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL FROM REVIEWS LIMIT " + count;
+            sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL FROM REVIEWS ORDER BY USEFUL DESC LIMIT " + count;
         } else {
-            sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL FROM REVIEWS SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL FROM REVIEWS WHERE FILM_ID = "+ filmId + " LIMIT " + count;
+            sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL FROM REVIEWS WHERE FILM_ID = " + filmId + " ORDER BY USEFUL DESC LIMIT " + count;
         }
 
         reviews = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::mapRowToReview));

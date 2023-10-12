@@ -52,14 +52,14 @@ CREATE TABLE IF NOT EXISTS reviews (
 	review_id INTEGER primary key auto_increment,
 	review_content varchar(255),
 	is_positive boolean default 'true',
-	user_id INTEGER REFERENCES users (user_id),
-	film_id INTEGER REFERENCES films (film_id),
-    useful INTEGER
+	user_id INTEGER REFERENCES users (user_id) ON DELETE CASCADE,
+	film_id INTEGER REFERENCES films (film_id) ON DELETE CASCADE,
+    useful INTEGER default 0
 );
 
 CREATE TABLE IF NOT EXISTS reviews_likes (
 	review_like_id INTEGER primary key auto_increment,
-	review_id INTEGER REFERENCES reviews (review_id),
-	user_id INTEGER REFERENCES users (user_id),
+	review_id INTEGER REFERENCES reviews (review_id) ON DELETE CASCADE,
+	user_id INTEGER REFERENCES users (user_id) ON DELETE CASCADE,
 	is_positive boolean default 'true'
 );

@@ -90,7 +90,7 @@ public class ReviewDBStorage implements ReviewStorage {
         try {
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
-            throw new ReviewNotFoundException("Review with id= " + reviewId + " have not been found.");
+            throw new ReviewNotFoundException("Review with id = " + reviewId + " have not been found.");
         }
 
     }

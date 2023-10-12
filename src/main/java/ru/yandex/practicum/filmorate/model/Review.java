@@ -23,4 +23,10 @@ public class Review {
 
     private Integer useful;
 
+    public Review(String content, Boolean isPositive, Integer userId, Integer filmId) {
+        this.content = content;
+        this.isPositive = isPositive;
+        this.userId = userId;
+        this.filmId = filmId;
+    }
 }

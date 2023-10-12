@@ -233,7 +233,7 @@ public class FilmDbStorage implements FilmStorage {
         return null;
     }
 
-    public void deleteFilmById(int filmId){
+    public void deleteFilmById(int filmId) {
         jdbcTemplate.update("DELETE FROM films WHERE film_id=?", filmId);
     }
 

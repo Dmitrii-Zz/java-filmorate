@@ -18,4 +18,6 @@ public interface DirectorStorage {
     void deleteDirector(int id);
 
     boolean findDirectorById(int id);
+
+    Set<Director> findDirectorFilm(int filmId);
 }

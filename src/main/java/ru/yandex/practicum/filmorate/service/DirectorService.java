@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exceptions.DirectorIdValidationException;
 import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.impl.dao.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 
 import java.util.List;
 
@@ -14,31 +15,31 @@ import static ru.yandex.practicum.filmorate.Constants.MIN_DIRECTOR_ID;
 @Service
 @RequiredArgsConstructor
 public class DirectorService {
-    private final DirectorDbStorage directorDbStorage;
+    private final DirectorStorage directorStorage;
 
     public Director createDirector(Director director) {
         validationDirectorId(director.getId());
-        return directorDbStorage.createDirector(director);
+        return directorStorage.createDirector(director);
     }
 
     public List<Director> findAll() {
-        return directorDbStorage.findAll();
+        return directorStorage.findAll();
     }
 
     public Director getDirectorById(int id) {
         validationDirectorId(id);
-        directorDbStorage.findDirectorById(id);
-        return directorDbStorage.getDirectorById(id);
+        directorStorage.findDirectorById(id);
+        return directorStorage.getDirectorById(id);
     }
 
     public Director updateDirector(Director director) {
         findDirectorById(director.getId());
-        return directorDbStorage.updateDirector(director);
+        return directorStorage.updateDirector(director);
     }
 
     public void deleteDirector(int id) {
-        findDirectorById(id);
-        directorDbStorage.deleteDirector(id);
+      //  findDirectorById(id);
+        directorStorage.deleteDirector(id);
     }
 
     private void validationDirectorId(int id) {
@@ -49,9 +50,8 @@ public class DirectorService {
 
     private void findDirectorById(int id) {
         validationDirectorId(id);
-        if (!directorDbStorage.findDirectorById(id)) {
+        if (!directorStorage.findDirectorById(id)) {
             throw new DirectorNotFoundException(String.format("Режиссер с id = '%d' не найден", id));
         }
-
     }
 }

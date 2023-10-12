@@ -25,13 +25,15 @@ CREATE TABLE IF NOT EXISTS films (
 );
 
 CREATE TABLE IF NOT EXISTS director_film (
-	film_id INTEGER REFERENCES films (film_id),
-	director_id INTEGER REFERENCES directors (director_id)
+film_id int references films(film_id),
+director_id int references directors(director_id),
+foreign key (film_id) references films(film_id), --ON DELETE CASCADE,
+foreign key (director_id) references directors(director_id) --ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS genre_film (
-	film_id INTEGER REFERENCES films (film_id),
-	genre_id INTEGER REFERENCES genres (genre_id)
+	film_id INTEGER NOT NULL REFERENCES films (film_id), --ON DELETE CASCADE,
+	genre_id INTEGER NOT NULL REFERENCES genres (genre_id) --ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS users (

@@ -31,8 +31,8 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director getDirectorById(int id) {
-               return jdbcTemplate.queryForObject("SELECT * FROM directors WHERE director_id = ?",
-                (resultSet, rowNum) -> directorParameters(resultSet), id);
+            return jdbcTemplate.queryForObject("SELECT * FROM directors WHERE director_id = ?",
+                    (resultSet, rowNum) -> directorParameters(resultSet), id);
     }
 
     @Override
@@ -65,6 +65,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void deleteDirector(int id) {
+//        if (!containsDirector(id)){ throw new DirectorNotFoundException("Director not found");}
         String sqlRequest = String.format("DELETE FROM directors WHERE director_id = %d", id);
         jdbcTemplate.execute(sqlRequest);
     }
@@ -85,4 +86,10 @@ public class DirectorDbStorage implements DirectorStorage {
             throw new RuntimeException(e);
         }
     }
+
+//    @Override
+//    public boolean containsDirector(int id) {
+//        Long count = jdbcTemplate.queryForObject("select count(director_id) from directors where director_id = ?", Long.class, id);
+//        return count == 1;
+//    }
 }

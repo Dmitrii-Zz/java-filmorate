@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.*;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -74,11 +75,9 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         Set<Director> directors = film.getDirector();
-        if (directors != null) {
-            for (Director director : directors) {
-                directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
-                director.setName(directorRepository.getDirectorById(director.getId()).getName());
-            }
+        for (Director director : directors) {
+            directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
+            director.setName(directorRepository.getDirectorById(director.getId()).getName());
         }
 
         film.setGenres(genreRepository.findGenreByFilmId(film.getId()));
@@ -108,12 +107,9 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         Set<Director> directors = film.getDirector();
-
-        if (directors != null) {
-            for (Director director : directors) {
-                directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
-                director.setName(directorRepository.getDirectorById(director.getId()).getName());
-            }
+        for (Director director : directors) {
+            directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
+            director.setName(directorRepository.getDirectorById(director.getId()).getName());
         }
 
         film.setGenres(genreRepository.findGenreByFilmId(film.getId()));
@@ -149,8 +145,24 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsByDirector(int id, String sortBy) {
+        String sqlRequest;
 
-        return null;
+        if (sortBy.equals("year")) {
+            sqlRequest = String.format("SELECT f.* FROM DIRECTOR_FILM df\n" +
+                                  "LEFT OUTER JOIN films AS f ON df.FILM_ID = f.FILM_ID\n" +
+                                  "WHERE df.director_id = %d\n" +
+                                  "ORDER BY f.RELEASE_DATE DESC", id);
+        } else {
+            sqlRequest = String.format("SELECT f.*, COUNT(l.FILM_ID) FROM DIRECTOR_FILM df\n" +
+                            "LEFT OUTER JOIN films AS f ON df.FILM_ID = f.film_id\n" +
+                            "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id\n" +
+                            "WHERE df.director_id = %d\n" +
+                            "GROUP BY l.film_id\n" +
+                            "ORDER BY COUNT(l.user_id) DESC;", id);
+        }
+
+        return jdbcTemplate.query(sqlRequest,
+                (resultSet, rowNum) -> filmParameters(resultSet));
     }
 
     private Film getFilmFromDb(SqlRowSet filmRows) {
@@ -169,5 +181,28 @@ public class FilmDbStorage implements FilmStorage {
                 .genres(genres)
                 .likes(likes)
                 .build();
+    }
+
+    private Film filmParameters(ResultSet resultSet) {
+        try {
+            String nameMpa = mpaRepository.findRatingById((resultSet.getInt("rating_id"))).getName();
+            Mpa mpa = new Mpa(resultSet.getInt("rating_id"), nameMpa);
+            Set<Genre> genres = genreRepository.findGenreByFilmId((resultSet.getInt("film_id")));
+            Set<Integer> likes = likeRepository.getAllLikeFilmById(resultSet.getInt("film_id"));
+            Set<Director> directors = directorRepository.findDirectorFilm(resultSet.getInt("film_id"));
+            return Film.builder()
+                    .name(resultSet.getString("name"))
+                    .description(resultSet.getString("description"))
+                    .releaseDate((resultSet.getDate("release_date")).toLocalDate())
+                    .duration(resultSet.getInt("duration"))
+                    .mpa(mpa)
+                    .id(resultSet.getInt("film_id"))
+                    .genres(genres)
+                    .likes(likes)
+                    .director(directors)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

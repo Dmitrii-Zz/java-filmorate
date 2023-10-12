@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -37,18 +38,16 @@ public class DirectorDbStorage implements DirectorStorage {
     public Director createDirector(Director director) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        String sqlRequest =
-                String.format("INSERT INTO directors (director_id, name) VALUES (?, ?)");
+        String sqlRequest = "INSERT INTO directors (name) VALUES (?)";
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(sqlRequest, new String[]{"director_id"});
-            ps.setInt(1, director.getId());
-            ps.setString(2, director.getName());
+            ps.setString(1, director.getName());
             return ps;
         }, keyHolder);
 
-        director.setId((int) keyHolder.getKey());
+        director.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         log.info("Возвращаем режиссера:" + director.toString());
         return director;
     }
@@ -56,9 +55,9 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Director updateDirector(Director director) {
         String sqlRequest = String.format("UPDATE directors " +
-                                          "SET name = '%s'" +
-                                          "WHERE director_id = '%d'",
-                                       director.getName(), director.getId());
+                        "SET name = '%s'" +
+                        "WHERE director_id = '%d'",
+                director.getName(), director.getId());
         jdbcTemplate.execute(sqlRequest);
         return director;
     }

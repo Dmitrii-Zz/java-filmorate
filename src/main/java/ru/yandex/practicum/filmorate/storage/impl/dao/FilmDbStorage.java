@@ -175,6 +175,27 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> searchFilms(String query, List<String> by, int count) {
         List<Film> films = getPopularFilms(count);
 
+       //(нужно, если проблему с count)
+//        String sqlRequest = "SELECT * FROM films";
+//        List<Film> films = jdbcTemplate.query(sqlRequest,
+//                (resultSet, rowNum) -> {
+//                    int mpaId = resultSet.getInt("rating_id");
+//                   int filmId = resultSet.getInt("film_id");
+//                   return Film.builder()
+//                           .name(resultSet.getString("name"))
+//                            .description(resultSet.getString("description"))
+//                            .releaseDate((resultSet.getDate("release_date")).toLocalDate())
+//                            .duration(resultSet.getInt("duration"))
+//                            .mpa(new Mpa(mpaId, jdbcTemplate.queryForObject(
+//                                    "SELECT name FROM rating WHERE rating_id = ?", String.class, mpaId)))
+//                            .id(filmId)
+//                            .rate(jdbcTemplate.queryForObject(
+//                                    "SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmId))
+//                            .genres(genreRepository.findGenreByFilmId(filmId))
+//                           .directors(findDirectorsFilm(filmId))
+//                            .build();
+//                });
+
         List<Film> findFilms = new ArrayList<>();
 
         if ((query != null) && ((by != null) && (by.contains("title") && !by.contains("director")))) {

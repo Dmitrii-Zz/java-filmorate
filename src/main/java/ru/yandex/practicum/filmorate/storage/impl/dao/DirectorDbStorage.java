@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 
@@ -30,7 +31,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director getDirectorById(int id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM directors WHERE director_id = ?",
+               return jdbcTemplate.queryForObject("SELECT * FROM directors WHERE director_id = ?",
                 (resultSet, rowNum) -> directorParameters(resultSet), id);
     }
 

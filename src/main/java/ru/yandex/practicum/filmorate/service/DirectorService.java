@@ -52,5 +52,6 @@ public class DirectorService {
         if (!directorDbStorage.findDirectorById(id)) {
             throw new DirectorNotFoundException(String.format("Режиссер с id = '%d' не найден", id));
         }
+
     }
 }

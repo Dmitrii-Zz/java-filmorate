@@ -138,17 +138,5 @@ public class FilmService {
         if (film.getDuration() <= MIN_DURATION_FILM) {
             throw new FilmValidationException("Продолжительность фильма не может быть отрицательной.");
         }
-
-        if (film.getDirector() == null) {
-            throw new DirectorNotFoundException("У фильма отсутствует режиссер.");
-        }
-
-        Set<Director> directors = film.getDirector();
-        for (Director director : directors) {
-            if (!directorRepository.findDirectorById(director.getId())) {
-                throw new DirectorNotFoundException(
-                        String.format("Режиссер с id = %d не существует.", director.getId()));
-            }
-        }
     }
 }

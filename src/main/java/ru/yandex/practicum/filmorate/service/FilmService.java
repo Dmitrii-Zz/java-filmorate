@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
@@ -73,7 +74,11 @@ public class FilmService {
     }
 
     public List<Film> getFilmsByDirector(int id, String sortBy) {
-        directorRepository.findDirectorById(id);
+
+        if(!directorRepository.findDirectorById(id)) {
+            throw new DirectorNotFoundException(String.format("Режиссер с id = %d отсутствует", id));
+        }
+
         return filmRepository.getFilmsByDirector(id, sortBy);
     }
 
@@ -136,6 +141,14 @@ public class FilmService {
 
         if (film.getDirector() == null) {
             throw new DirectorNotFoundException("У фильма отсутствует режиссер.");
+        }
+
+        Set<Director> directors = film.getDirector();
+        for (Director director : directors) {
+            if (!directorRepository.findDirectorById(director.getId())) {
+                throw new DirectorNotFoundException(
+                        String.format("Режиссер с id = %d не существует.", director.getId()));
+            }
         }
     }
 }

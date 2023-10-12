@@ -17,4 +17,9 @@ public class DirectorFilmDbStorage implements DirectorFilmStorage {
                 idFilm, idDirector);
         jdbcTemplate.execute(sqlRequest);
     }
+
+    @Override
+    public void deleteDirectorFilm(int id) {
+        jdbcTemplate.execute(String.format("DELETE FROM director_film WHERE director_id = %d", id));
+    }
 }

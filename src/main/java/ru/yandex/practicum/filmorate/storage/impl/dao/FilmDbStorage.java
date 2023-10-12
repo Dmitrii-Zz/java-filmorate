@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -87,9 +86,10 @@ public class FilmDbStorage implements FilmStorage {
             ps.setInt(4, film.getDuration());
             ps.setInt(5, film.getMpa().getId());
             return ps;
-            }, keyHolder);
+        }, keyHolder);
 
         film.setId((int) keyHolder.getKey());
+
         Set<Genre> genres = film.getGenres();
         if (genres != null) {
             for (Genre genre : genres) {
@@ -97,11 +97,11 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
 
-        Set<Director> directors = film.getDirector();
+        Set<Director> directors = film.getDirectors();
         if (directors != null) {
-            for (Director director : directors) {
-                directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
-                director.setName(directorRepository.getDirectorById(director.getId()).getName());
+            for (Director dir : directors) {
+                directorFilmRepository.addFilmByDirector(film.getId(), dir.getId());
+                dir.setName(directorRepository.getDirectorById(dir.getId()).getName());
             }
         }
 
@@ -114,9 +114,9 @@ public class FilmDbStorage implements FilmStorage {
     public Film update(Film film) {
         String sqlRequest =
                 String.format("UPDATE films " +
-                              "SET name = '%s', description = '%s', release_date = '%s', " +
-                              "duration = '%d', rating_id = '%d' " +
-                              "WHERE film_id = '%d'",
+                                "SET name = '%s', description = '%s', release_date = '%s', " +
+                                "duration = '%d', rating_id = '%d' " +
+                                "WHERE film_id = '%d'",
                         film.getName(), film.getDescription(), film.getReleaseDate(),
                         film.getDuration(), film.getMpa().getId(), film.getId());
 
@@ -131,7 +131,7 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
 
-        Set<Director> directors = film.getDirector();
+        Set<Director> directors = film.getDirectors();
 
         if (directors != null) {
             for (Director director : directors) {
@@ -156,11 +156,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularFilms(int count) {
         String sqlRequest = String.format("SELECT f.film_id, COUNT(l.film_id) " +
-                                          "FROM films AS f " +
-                                          "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id " +
-                                          "GROUP BY f.film_id " +
-                                          "ORDER BY COUNT(l.film_id) DESC " +
-                                          "LIMIT %d", count);
+                "FROM films AS f " +
+                "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(l.film_id) DESC " +
+                "LIMIT %d", count);
 
         SqlRowSet popularFilms = jdbcTemplate.queryForRowSet(sqlRequest);
         List<Film> films = new ArrayList<>();
@@ -219,7 +219,6 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         throw new FilmNotFoundException("Wrong parameters, 'query' can't be empty and 'by' mast be one of: title / director / title,director");
-
     }
 
     public List<Film> sortFilms(List<Film> films) {
@@ -255,7 +254,7 @@ public class FilmDbStorage implements FilmStorage {
                 .id(filmRows.getInt("film_id"))
                 .genres(genres)
                 .rate(jdbcTemplate.queryForObject("SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmRows.getInt("film_id")))
-                .director(findDirectorsFilm(filmRows.getInt("film_id")))
+                .directors(findDirectorsFilm(filmRows.getInt("film_id")))
                 .likes(likes)
                 .build();
     }

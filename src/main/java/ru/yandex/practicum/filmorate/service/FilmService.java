@@ -75,7 +75,7 @@ public class FilmService {
 
     public List<Film> getFilmsByDirector(int id, String sortBy) {
 
-        if(!directorRepository.findDirectorById(id)) {
+        if (!directorRepository.findDirectorById(id)) {
             throw new DirectorNotFoundException(String.format("Режиссер с id = %d отсутствует", id));
         }
 

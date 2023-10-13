@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
@@ -144,5 +146,10 @@ public class UserService {
         if (id == id1) {
             throw new UserValidationException("Нельзя добавить или удалить себя из списка друзей.");
         }
+    }
+
+    public List<Film> getFilmsRecomendation(int id) {
+        validationId(id);
+        return userRepository.getFilmsRecomendation(id);
     }
 }

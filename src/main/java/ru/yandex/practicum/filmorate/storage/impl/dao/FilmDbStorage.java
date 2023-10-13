@@ -86,7 +86,7 @@ public class FilmDbStorage implements FilmStorage {
             ps.setInt(4, film.getDuration());
             ps.setInt(5, film.getMpa().getId());
             return ps;
-            }, keyHolder);
+        }, keyHolder);
 
         film.setId((int) keyHolder.getKey());
         Set<Genre> genres = film.getGenres();
@@ -113,9 +113,9 @@ public class FilmDbStorage implements FilmStorage {
     public Film update(Film film) {
         String sqlRequest =
                 String.format("UPDATE films " +
-                              "SET name = '%s', description = '%s', release_date = '%s', " +
-                              "duration = '%d', rating_id = '%d' " +
-                              "WHERE film_id = '%d'",
+                                "SET name = '%s', description = '%s', release_date = '%s', " +
+                                "duration = '%d', rating_id = '%d' " +
+                                "WHERE film_id = '%d'",
                         film.getName(), film.getDescription(), film.getReleaseDate(),
                         film.getDuration(), film.getMpa().getId(), film.getId());
 
@@ -153,13 +153,42 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilms(int count) {
-        String sqlRequest = String.format("SELECT f.film_id, COUNT(l.film_id) " +
-                                          "FROM films AS f " +
-                                          "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id " +
-                                          "GROUP BY f.film_id " +
-                                          "ORDER BY COUNT(l.film_id) DESC " +
-                                          "LIMIT %d", count);
+    public List<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        String sqlRequest = null;
+        if (genreId == 0 && year == 0) {
+            sqlRequest = String.format("SELECT f.film_id, COUNT(l.film_id) " +
+                    "FROM films AS f " +
+                    "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id " +
+                    "GROUP BY f.film_id " +
+                    "ORDER BY COUNT(l.film_id) DESC " +
+                    "LIMIT %d", count);
+        }
+        if (genreId != 0 && year == 0) {
+            sqlRequest = String.format("SELECT f.*\n" +
+                    "FROM films f\n" +
+                    "INNER JOIN genre_film gf ON f.film_id = gf.film_id\n" +
+                    "LEFT JOIN likes l ON f.film_id = l.film_id\n" +
+                    "WHERE gf.genre_id = %d\n" +
+                    "GROUP BY f.film_id\n" +
+                    "ORDER BY COUNT(l.user_id) DESC;", genreId);
+        }
+        if (genreId == 0 && year != 0) {
+            sqlRequest = String.format("SELECT f.* \n" +
+                    "FROM films f\n" +
+                    "LEFT JOIN likes l ON f.film_id = l.film_id\n" +
+                    "WHERE EXTRACT(YEAR FROM f.release_date) = %d\n" +
+                    "GROUP BY f.film_id\n" +
+                    "ORDER BY COUNT(l.user_id) DESC;", year);
+        }
+        if (genreId != 0 && year != 0) {
+            sqlRequest = String.format("SELECT f.* \n" +
+                    "FROM films f\n" +
+                    "LEFT JOIN likes l ON f.film_id = l.film_id\n" +
+                    "JOIN genre_film gf ON f.film_id = gf.film_id\n" +
+                    "WHERE EXTRACT(YEAR FROM f.release_date) = %d AND gf.genre_id = %d\n" +
+                    "GROUP BY f.film_id\n" +
+                    "ORDER BY COUNT(l.user_id) DESC;", year, genreId);
+        }
 
         SqlRowSet popularFilms = jdbcTemplate.queryForRowSet(sqlRequest);
         List<Film> films = new ArrayList<>();
@@ -172,7 +201,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchFilms(String query, List<String> by, int count) {
-        List<Film> films = getPopularFilms(count);
+        List<Film> films = getPopularFilms(10, 0, 0);
 
         List<Film> findFilms = new ArrayList<>();
 
@@ -256,4 +285,5 @@ public class FilmDbStorage implements FilmStorage {
                 .likes(likes)
                 .build();
     }
+
 }

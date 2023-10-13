@@ -3,9 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
@@ -64,9 +62,9 @@ public class FilmService {
         likeFilmRepository.deleteLike(filmId, userId);
     }
 
-    public List<Film> popularFilms(int count) {
+    public List<Film> popularFilms(Integer count, Integer genreId, Integer year) {
         validateCount(count);
-        return filmRepository.getPopularFilms(count);
+        return filmRepository.getPopularFilms(count, genreId, year);
     }
 
     public void validateCount(int count) {

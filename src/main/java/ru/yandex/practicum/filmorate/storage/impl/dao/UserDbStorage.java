@@ -36,13 +36,13 @@ public class UserDbStorage implements UserStorage {
                 String.format("INSERT INTO users (name, email, login, birthday) VALUES (?, ?, ?, ?)");
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement(sqlRequest, new String[] {"user_id"});
+                    .prepareStatement(sqlRequest, new String[]{"user_id"});
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getLogin());
             ps.setObject(4, user.getBirthday());
             return ps;
-            }, keyHolder);
+        }, keyHolder);
 
         return getUserById((int) keyHolder.getKey());
     }
@@ -68,10 +68,10 @@ public class UserDbStorage implements UserStorage {
     public User update(User user) {
         String sqlRequest =
                 String.format("UPDATE users " +
-                              "SET name = '%s', email = '%s', login = '%s', birthday = '%s' " +
-                              "WHERE user_id = '%d'",
-                              user.getName(), user.getEmail(), user.getLogin(),
-                              user.getBirthday(), user.getId());
+                                "SET name = '%s', email = '%s', login = '%s', birthday = '%s' " +
+                                "WHERE user_id = '%d'",
+                        user.getName(), user.getEmail(), user.getLogin(),
+                        user.getBirthday(), user.getId());
         jdbcTemplate.execute(sqlRequest);
         return getUserById(user.getId());
     }

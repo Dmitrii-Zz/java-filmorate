@@ -39,13 +39,12 @@ public class DirectorDbStorage implements DirectorStorage {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         String sqlRequest =
-                String.format("INSERT INTO directors (director_id, name) VALUES (?, ?)");
+                String.format("INSERT INTO directors (name) VALUES (?)");
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(sqlRequest, new String[]{"director_id"});
-            ps.setInt(1, director.getId());
-            ps.setString(2, director.getName());
+            ps.setString(1, director.getName());
             return ps;
         }, keyHolder);
 

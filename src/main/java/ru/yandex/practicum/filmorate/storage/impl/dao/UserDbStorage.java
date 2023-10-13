@@ -76,6 +76,11 @@ public class UserDbStorage implements UserStorage {
         return getUserById(user.getId());
     }
 
+    @Override
+    public void deleteUserById(int userId) {
+        jdbcTemplate.update("DELETE FROM users WHERE user_id=?", userId);
+    }
+
     private User getUserFromDb(SqlRowSet userRows) {
         return User.builder()
                 .email(userRows.getString("email"))

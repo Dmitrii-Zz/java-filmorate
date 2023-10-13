@@ -7,17 +7,23 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.interfaces.DirectorFilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Primary
@@ -27,6 +33,24 @@ public class FilmDbStorage implements FilmStorage {
     private final MpaDbStorage mpaRepository;
     private final GenreStorage genreRepository;
     private final LikeFilmsStorage likeRepository;
+    private final DirectorFilmStorage directorFilmRepository;
+    private final DirectorStorage directorRepository;
+
+    public Set<Director> findDirectorsFilm(int id) {
+        List<Integer> directorsIds = jdbcTemplate.queryForList("SELECT director_film.director_id FROM director_film WHERE film_id=?", Integer.class, id);
+        Set<Director> directors = new HashSet<>();
+        for (Integer j : directorsIds) {
+            Director director = new Director();
+            String str = jdbcTemplate.queryForObject("SELECT name FROM directors WHERE director_id=?", String.class, j);
+            director.setName(str);
+            director.setId(j);
+            if (directors.contains(director)) {
+                break;
+            }
+            directors.add(director);
+        }
+        return directors;
+    }
 
     @Override
     public List<Film> findAll() {
@@ -72,6 +96,14 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
 
+        Set<Director> directors = film.getDirector();
+        if (directors != null) {
+            for (Director director : directors) {
+                directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
+                director.setName(directorRepository.getDirectorById(director.getId()).getName());
+            }
+        }
+
         film.setGenres(genreRepository.findGenreByFilmId(film.getId()));
         film.setMpa(mpaRepository.findRatingById(film.getMpa().getId()));
         return film;
@@ -95,6 +127,15 @@ public class FilmDbStorage implements FilmStorage {
             genreRepository.deleteGenreFilm(film.getId());
             for (Genre genre : genres) {
                 genreRepository.saveGenreFilm(film.getId(), genre.getId());
+            }
+        }
+
+        Set<Director> directors = film.getDirector();
+
+        if (directors != null) {
+            for (Director director : directors) {
+                directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
+                director.setName(directorRepository.getDirectorById(director.getId()).getName());
             }
         }
 
@@ -129,6 +170,73 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+    @Override
+    public List<Film> searchFilms(String query, List<String> by, int count) {
+        List<Film> films = getPopularFilms(count);
+
+        List<Film> findFilms = new ArrayList<>();
+
+        if ((query != null) && ((by != null) && (by.contains("title") && !by.contains("director")))) {
+            for (Film f : films) {
+                if (f.getName().toLowerCase().contains(query.toLowerCase())) {
+                    findFilms.add(f);
+                }
+            }
+            return sortFilms(findFilms);
+        }
+
+        if ((query != null) && ((by != null) && (by.contains("director") && !by.contains("title")))) {
+            for (Film f : films) {
+                for (Director d : findDirectorsFilm(f.getId())) {
+                    if (d.getName().toLowerCase().contains(query.toLowerCase())) {
+                        if (findFilms.contains(f)) {
+                            break;
+                        }
+                        findFilms.add(f);
+                    }
+                }
+            }
+            return sortFilms(findFilms);
+        }
+
+        if ((query != null) && ((by != null) && (by.contains("title") && (by.contains("director"))))) {
+            for (Film f : films) {
+                for (Director d : findDirectorsFilm(f.getId())) {
+                    if (d.getName().toLowerCase().contains(query.toLowerCase()) || (f.getName().toLowerCase().contains(query.toLowerCase()))) {
+                        if (findFilms.contains(f)) {
+                            break;
+                        }
+                        findFilms.add(f);
+                    }
+                }
+            }
+            return sortFilms(findFilms);
+        }
+
+        if ((query == null) && (by == null)) {
+            return sortFilms(films);
+        }
+
+        throw new FilmNotFoundException("Wrong parameters, 'query' can't be empty and 'by' mast be one of: title / director / title,director");
+
+    }
+
+    public List<Film> sortFilms(List<Film> films) {
+        return films.stream()
+                .sorted((x1, x2) -> x2.getRate() - x1.getRate())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Film> getFilmsByDirector(int id, String sortBy) {
+
+        return null;
+    }
+
+    public void deleteFilmById(int filmId) {
+        jdbcTemplate.update("DELETE FROM films WHERE film_id=?", filmId);
+    }
+
     private Film getFilmFromDb(SqlRowSet filmRows) {
         String nameMpa = mpaRepository.findRatingById((filmRows.getInt("rating_id"))).getName();
         Mpa mpa = new Mpa(filmRows.getInt("rating_id"), nameMpa);
@@ -143,6 +251,8 @@ public class FilmDbStorage implements FilmStorage {
                 .mpa(mpa)
                 .id(filmRows.getInt("film_id"))
                 .genres(genres)
+                .rate(jdbcTemplate.queryForObject("SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmRows.getInt("film_id")))
+                .director(findDirectorsFilm(filmRows.getInt("film_id")))
                 .likes(likes)
                 .build();
     }

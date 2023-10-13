@@ -45,4 +45,16 @@ public class ErrorHandler {
     public ErrorResponse handleRatingNotFountException(final RatingNotFoundException e) {
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleDirectorNotFoundException(final DirectorNotFoundException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIdDirectorValidationException(final DirectorIdValidationException e) {
+        return new ErrorResponse(e.getMessage());
+    }
 }

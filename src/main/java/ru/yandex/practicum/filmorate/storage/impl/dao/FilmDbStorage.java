@@ -12,12 +12,15 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.interfaces.*;
+import ru.yandex.practicum.filmorate.storage.interfaces.DirectorFilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,7 +70,7 @@ public class FilmDbStorage implements FilmStorage {
             ps.setInt(4, film.getDuration());
             ps.setInt(5, film.getMpa().getId());
             return ps;
-            }, keyHolder);
+        }, keyHolder);
 
         film.setId((int) keyHolder.getKey());
         Set<Genre> genres = film.getGenres();
@@ -94,9 +97,9 @@ public class FilmDbStorage implements FilmStorage {
     public Film update(Film film) {
         String sqlRequest =
                 String.format("UPDATE films " +
-                              "SET name = '%s', description = '%s', release_date = '%s', " +
-                              "duration = '%d', rating_id = '%d' " +
-                              "WHERE film_id = '%d'",
+                                "SET name = '%s', description = '%s', release_date = '%s', " +
+                                "duration = '%d', rating_id = '%d' " +
+                                "WHERE film_id = '%d'",
                         film.getName(), film.getDescription(), film.getReleaseDate(),
                         film.getDuration(), film.getMpa().getId(), film.getId());
 
@@ -109,6 +112,8 @@ public class FilmDbStorage implements FilmStorage {
             for (Genre genre : genres) {
                 genreRepository.saveGenreFilm(film.getId(), genre.getId());
             }
+        } else {
+            directorFilmRepository.deleteDirectorsByFilmId(film.getId());
         }
 
         Set<Director> directors = film.getDirectors();
@@ -133,18 +138,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilmById(int filmId) {
-
-    }
-
-    @Override
     public List<Film> getPopularFilms(int count) {
         String sqlRequest = String.format("SELECT f.film_id, COUNT(l.film_id) " +
-                                          "FROM films AS f " +
-                                          "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id " +
-                                          "GROUP BY f.film_id " +
-                                          "ORDER BY COUNT(l.film_id) DESC " +
-                                          "LIMIT %d", count);
+                "FROM films AS f " +
+                "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(l.film_id) DESC " +
+                "LIMIT %d", count);
 
         SqlRowSet popularFilms = jdbcTemplate.queryForRowSet(sqlRequest);
         List<Film> films = new ArrayList<>();
@@ -155,126 +155,26 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
-    public Set<Director> findDirectorsFilm(int id) {
-        List<Integer> directorsIds = jdbcTemplate.queryForList("SELECT director_film.director_id FROM director_film WHERE film_id=?", Integer.class, id);
-        Set<Director> directors = new HashSet<>();
-        for (Integer j : directorsIds) {
-            Director director = new Director();
-            String str = jdbcTemplate.queryForObject("SELECT name FROM directors WHERE director_id=?", String.class, j);
-            director.setName(str);
-            director.setId(j);
-            if (directors.contains(director)) {
-                break;
-            }
-            directors.add(director);
-        }
-        return directors;
-    }
-
-
-    @Override
-    public List<Film> searchFilms(String query, List<String> by, int count) {
-     //  List<Film> films = getPopularFilms(count);
-
-        //(нужно, если проблему с count)
-//        String sqlRequest = "SELECT * FROM films";
-//        List<Film> films = jdbcTemplate.query(sqlRequest,
-//                (resultSet, rowNum) -> {
-//                    int mpaId = resultSet.getInt("rating_id");
-//                   int filmId = resultSet.getInt("film_id");
-//                   return Film.builder()
-//                           .name(resultSet.getString("name"))
-//                            .description(resultSet.getString("description"))
-//                            .releaseDate((resultSet.getDate("release_date")).toLocalDate())
-//                            .duration(resultSet.getInt("duration"))
-//                            .mpa(new Mpa(mpaId, jdbcTemplate.queryForObject(
-//                                    "SELECT name FROM rating WHERE rating_id = ?", String.class, mpaId)))
-//                            .id(filmId)
-//                            .rate(jdbcTemplate.queryForObject(
-//                                    "SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmId))
-//                            .genres(findGenresFilm(filmId))//genreRepository.findGenreByFilmId(filmId))
-//                            .directors(findDirectorsFilm(filmId))
-//                            .build();
-//                });
-
-//        List<Film> findFilms = new ArrayList<>();
-//
-//        if ((query != null) && ((by != null) && (by.contains("title") && !by.contains("director")))) {
-//            for (Film f : films) {
-//                if (f.getName().toLowerCase().contains(query.toLowerCase())) {
-//                    findFilms.add(f);
-//                }
-//            }
-//            return sortFilms(findFilms);
-//        }
-//
-//        if ((query != null) && ((by != null) && (by.contains("director") && !by.contains("title")))) {
-//            for (Film f : films) {
-//                for (Director d : findDirectorsFilm(f.getId())) {
-//                    if (d.getName().toLowerCase().contains(query.toLowerCase())) {
-//                        if (findFilms.contains(f)) {
-//                            break;
-//                        }
-//                        findFilms.add(f);
-//                    }
-//                }
-//            }
-//            return sortFilms(findFilms);
-//        }
-//
-//        if ((query != null) && ((by != null) && (by.contains("title") && (by.contains("director"))))) {
-//            for (Film f : films) {
-//                for (Director d : findDirectorsFilm(f.getId())) {
-//                    if (d.getName().toLowerCase().contains(query.toLowerCase()) || (f.getName().toLowerCase().contains(query.toLowerCase()))) {
-//                        if (findFilms.contains(f)) {
-//                            break;
-//                        }
-//                        findFilms.add(f);
-//                    }
-//                }
-//            }
-//            return sortFilms(findFilms);
-//        }
-//
-//        if ((query == null) && (by == null)) {
-//            return sortFilms(films);
-//        }
-//
-//        throw new FilmNotFoundException("Wrong parameters, 'query' can't be empty and 'by' mast be one of: title / director / title,director");
-//    }
-//
-//    public List<Film> sortFilms(List<Film> films) {
-//        return films.stream()
-//                .sorted((x1, x2) -> x2.getRate() - x1.getRate())
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<Film> getFilmsByDirector(int id, String sortBy) {
-//        String sqlRequest;
-//
-//        if (sortBy.equals("year")) {
-//            sqlRequest = String.format("SELECT f.* FROM DIRECTOR_FILM df\n" +
-//                                  "LEFT OUTER JOIN films AS f ON df.FILM_ID = f.FILM_ID\n" +
-//                                  "WHERE df.director_id = %d\n" +
-//                                  "ORDER BY f.RELEASE_DATE ASC", id);
-//        } else {
-//            sqlRequest = String.format("SELECT f.*, COUNT(l.FILM_ID) FROM DIRECTOR_FILM df\n" +
-//                            "LEFT OUTER JOIN films AS f ON df.FILM_ID = f.film_id\n" +
-//                            "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id\n" +
-//                            "WHERE df.director_id = %d\n" +
-//                            "GROUP BY f.film_id\n" +
-//                            "ORDER BY COUNT(l.user_id) DESC;", id);
-//        }
-//
-//        return jdbcTemplate.query(sqlRequest,
-//                (resultSet, rowNum) -> filmParameters(resultSet));
-        return new ArrayList<>();
-    }
-
     @Override
     public List<Film> getFilmsByDirector(int id, String sortBy) {
-        return null;
+        String sqlRequest;
+
+        if (sortBy.equals("year")) {
+            sqlRequest = String.format("SELECT f.* FROM DIRECTOR_FILM df\n" +
+                    "LEFT OUTER JOIN films AS f ON df.FILM_ID = f.FILM_ID\n" +
+                    "WHERE df.director_id = %d\n" +
+                    "ORDER BY f.RELEASE_DATE ASC", id);
+        } else {
+            sqlRequest = String.format("SELECT f.*, COUNT(l.FILM_ID) FROM DIRECTOR_FILM df\n" +
+                    "LEFT OUTER JOIN films AS f ON df.FILM_ID = f.film_id\n" +
+                    "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id\n" +
+                    "WHERE df.director_id = %d\n" +
+                    "GROUP BY f.film_id\n" +
+                    "ORDER BY COUNT(l.user_id) DESC;", id);
+        }
+
+        return jdbcTemplate.query(sqlRequest,
+                (resultSet, rowNum) -> filmParameters(resultSet));
     }
 
     private Film getFilmFromDb(SqlRowSet filmRows) {
@@ -283,7 +183,7 @@ public class FilmDbStorage implements FilmStorage {
         Set<Genre> genres = genreRepository.findGenreByFilmId((filmRows.getInt("film_id")));
         Set<Integer> likes = likeRepository.getAllLikeFilmById(filmRows.getInt("film_id"));
         Set<Director> directors = directorRepository.findDirectorFilm(filmRows.getInt("film_id"));
-
+        Integer rate = likeRepository.getAllLikeFilmById(filmRows.getInt("film_id")).size();
         return Film.builder()
                 .name(filmRows.getString("name"))
                 .description(filmRows.getString("description"))
@@ -293,6 +193,7 @@ public class FilmDbStorage implements FilmStorage {
                 .id(filmRows.getInt("film_id"))
                 .genres(genres)
                 .directors(directors)
+                .rate(rate)
                 .likes(likes)
                 .build();
     }
@@ -314,10 +215,73 @@ public class FilmDbStorage implements FilmStorage {
                     .genres(genres)
                     .likes(likes)
                     .directors(directors)
+                    .rate(likeRepository.getAllLikeFilmById(resultSet.getInt("film_id")).size())
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Override
+    public List<Film> searchFilms(String query, List<String> by) {
+
+        String sqlRequest = "SELECT * FROM films";
+        List<Film> films = jdbcTemplate.query(sqlRequest,
+                (resultSet, rowNum) -> filmParameters(resultSet));
+
+        List<Film> findFilms = new ArrayList<>();
+
+        if (((query != null) && (by != null)) && (by.contains("title") && !by.contains("director"))) {
+            for (Film f : films) {
+                if (f.getName().toLowerCase().contains(query.toLowerCase())) {
+                    findFilms.add(f);
+                }
+            }
+            return sortFilms(findFilms);
+        }
+
+        if (((query != null) && (by != null)) && (by.contains("director") && !by.contains("title"))) {
+            for (Film f : films) {
+                for (Director d : directorRepository.findDirectorFilm(f.getId())) {
+                    if (d.getName().toLowerCase().contains(query.toLowerCase())) {
+                        if (findFilms.contains(f)) {
+                            break;
+                        }
+                        findFilms.add(f);
+                    }
+                }
+            }
+            return sortFilms(findFilms);
+        }
+
+        if (((query != null) && (by != null)) && (by.contains("title") && (by.contains("director")))) {
+            for (Film f : films) {
+                if (f.getName().toLowerCase().contains(query.toLowerCase())) {
+                    findFilms.add(f);
+                    continue;
+                }
+                for (Director d : directorRepository.findDirectorFilm(f.getId())) {
+                    if (d.getName().toLowerCase().contains(query.toLowerCase())) {
+                        if (findFilms.contains(f)) {
+                            continue;
+                        }
+                        findFilms.add(f);
+                    }
+                }
+            }
+            return sortFilms(findFilms);
+        }
+
+        if ((query == null) && (by == null)) {
+            return sortFilms(films);
+        }
+
+        throw new FilmNotFoundException("Wrong parameters, 'query' can't be empty and 'by' mast be one of: title / director / title,director");
+    }
+
+    public List<Film> sortFilms(List<Film> films) {
+        return films.stream()
+                .sorted((x1, x2) -> x2.getRate() - x1.getRate())
+                .collect(Collectors.toList());
+    }
 }

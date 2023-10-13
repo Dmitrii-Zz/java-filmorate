@@ -150,6 +150,7 @@ public class UserService {
 
     public List<Film> getFilmsRecomendation(int id) {
         validationId(id);
+        //пустой комментарий
         return userRepository.getFilmsRecomendation(id);
     }
 }

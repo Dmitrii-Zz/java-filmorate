@@ -73,7 +73,8 @@ public class FilmDbStorage implements FilmStorage {
                 genreRepository.saveGenreFilm(film.getId(), genre.getId());
             }
         }
-        Set<Director> directors = film.getDirector();
+
+        Set<Director> directors = film.getDirectors();
         if (directors != null) {
             for (Director director : directors) {
                 directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
@@ -105,9 +106,11 @@ public class FilmDbStorage implements FilmStorage {
             for (Genre genre : genres) {
                 genreRepository.saveGenreFilm(film.getId(), genre.getId());
             }
+        } else {
+            directorFilmRepository.deleteDirectorsByFilmId(film.getId());
         }
 
-        Set<Director> directors = film.getDirector();
+        Set<Director> directors = film.getDirectors();
         if (directors != null) {
             for (Director director : directors) {
                 directorFilmRepository.addFilmByDirector(film.getId(), director.getId());
@@ -154,13 +157,13 @@ public class FilmDbStorage implements FilmStorage {
             sqlRequest = String.format("SELECT f.* FROM DIRECTOR_FILM df\n" +
                                   "LEFT OUTER JOIN films AS f ON df.FILM_ID = f.FILM_ID\n" +
                                   "WHERE df.director_id = %d\n" +
-                                  "ORDER BY f.RELEASE_DATE DESC", id);
+                                  "ORDER BY f.RELEASE_DATE ASC", id);
         } else {
             sqlRequest = String.format("SELECT f.*, COUNT(l.FILM_ID) FROM DIRECTOR_FILM df\n" +
                             "LEFT OUTER JOIN films AS f ON df.FILM_ID = f.film_id\n" +
                             "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id\n" +
                             "WHERE df.director_id = %d\n" +
-                            "GROUP BY l.film_id\n" +
+                            "GROUP BY f.film_id\n" +
                             "ORDER BY COUNT(l.user_id) DESC;", id);
         }
 
@@ -173,6 +176,7 @@ public class FilmDbStorage implements FilmStorage {
         Mpa mpa = new Mpa(filmRows.getInt("rating_id"), nameMpa);
         Set<Genre> genres = genreRepository.findGenreByFilmId((filmRows.getInt("film_id")));
         Set<Integer> likes = likeRepository.getAllLikeFilmById(filmRows.getInt("film_id"));
+        Set<Director> directors = directorRepository.findDirectorFilm(filmRows.getInt("film_id"));
 
         return Film.builder()
                 .name(filmRows.getString("name"))
@@ -182,6 +186,7 @@ public class FilmDbStorage implements FilmStorage {
                 .mpa(mpa)
                 .id(filmRows.getInt("film_id"))
                 .genres(genres)
+                .directors(directors)
                 .likes(likes)
                 .build();
     }
@@ -202,7 +207,7 @@ public class FilmDbStorage implements FilmStorage {
                     .id(resultSet.getInt("film_id"))
                     .genres(genres)
                     .likes(likes)
-                    .director(directors)
+                    .directors(directors)
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -173,7 +173,6 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> searchFilms(String query, List<String> by, int count) {
         List<Film> films = getPopularFilms(count);
-
         List<Film> findFilms = new ArrayList<>();
 
         if ((query != null) && ((by != null) && (by.contains("title") && !by.contains("director")))) {
@@ -218,7 +217,6 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         throw new FilmNotFoundException("Wrong parameters, 'query' can't be empty and 'by' mast be one of: title / director / title,director");
-
     }
 
     public List<Film> sortFilms(List<Film> films) {
@@ -235,6 +233,25 @@ public class FilmDbStorage implements FilmStorage {
 
     public void deleteFilmById(int filmId) {
         jdbcTemplate.update("DELETE FROM films WHERE film_id=?", filmId);
+    }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        String sqlRequest = "SELECT f.film_id, COUNT(l.film_id) " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id " +
+                "WHERE f.film_id IN (SELECT l1.film_id FROM likes AS l1 " +
+                "LEFT JOIN likes AS l2 ON l1.film_id=l2.film_id " +
+                "WHERE l1.user_id=? AND l2.user_id=?) " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(l.film_id) DESC";
+
+        SqlRowSet popularFilms = jdbcTemplate.queryForRowSet(sqlRequest, userId, friendId);
+        List<Film> films = new ArrayList<>();
+        while (popularFilms.next()) {
+            films.add(getFilmById(popularFilms.getInt("film_id")));
+        }
+
+        return films;
     }
 
     private Film getFilmFromDb(SqlRowSet filmRows) {

@@ -15,30 +15,19 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
-
     int id;
-
     @NotNull
     @NotBlank
     String name;
-
     @NotNull
     @NotBlank
     String description;
-
     @NotNull
     LocalDate releaseDate;
-
     int duration;
-
     Mpa mpa;
-
     @JsonIgnore
     Set<Integer> likes;
-
     Set<Genre> genres;
-
-    Integer rate;
-
     Set<Director> directors;
 }

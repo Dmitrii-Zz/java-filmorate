@@ -7,14 +7,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -31,17 +30,16 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director getDirectorById(int id) {
-        if (containsDirector(id)){
-            return jdbcTemplate.queryForObject("SELECT * FROM directors WHERE director_id = ?",
-                    (resultSet, rowNum) -> directorParameters(resultSet), id);}
-        throw new DirectorNotFoundException("Director not found");
+        return jdbcTemplate.queryForObject("SELECT * FROM directors WHERE director_id = ?",
+                (resultSet, rowNum) -> directorParameters(resultSet), id);
     }
 
     @Override
     public Director createDirector(Director director) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        String sqlRequest = "INSERT INTO directors (name) VALUES (?)";
+        String sqlRequest =
+                String.format("INSERT INTO directors (name) VALUES (?)");
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
@@ -50,36 +48,42 @@ public class DirectorDbStorage implements DirectorStorage {
             return ps;
         }, keyHolder);
 
-        director.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+        director.setId((int) keyHolder.getKey());
         log.info("Возвращаем режиссера:" + director.toString());
         return director;
     }
 
     @Override
     public Director updateDirector(Director director) {
-        if (containsDirector(director.getId())){
         String sqlRequest = String.format("UPDATE directors " +
-                        "SET name = '%s'" +
-                        "WHERE director_id = '%d'",
-                director.getName(), director.getId());
+                                          "SET name = '%s'" +
+                                          "WHERE director_id = '%d'",
+                                       director.getName(), director.getId());
         jdbcTemplate.execute(sqlRequest);
-        return director;}
-        throw new DirectorNotFoundException("Director not found");
+        return director;
     }
 
     @Override
     public void deleteDirector(int id) {
-       if (!containsDirector(id)){ throw new DirectorNotFoundException("Director not found");}
-//        String sqlRequest = String.format("DELETE FROM directors WHERE director_id = %d", id);
-//        jdbcTemplate.execute(sqlRequest);
-        jdbcTemplate.update("delete from directors where id = ?", Long.valueOf(id));
-
+        String sqlRequest = String.format("DELETE FROM directors WHERE director_id = %d", id);
+        jdbcTemplate.execute(sqlRequest);
     }
 
     @Override
     public boolean findDirectorById(int id) {
         SqlRowSet directorRows = jdbcTemplate.queryForRowSet("SELECT * FROM directors WHERE director_id = ?", id);
         return directorRows.next();
+    }
+
+    @Override
+    public Set<Director> findDirectorFilm(int filmId) {
+
+        String sqlRequest = String.format("SELECT d.* FROM DIRECTORS AS d\n" +
+                "LEFT OUTER JOIN DIRECTOR_FILM df ON d.DIRECTOR_ID = df.DIRECTOR_ID \n" +
+                "WHERE df.FILM_ID = %d;", filmId);
+
+        return Set.copyOf(jdbcTemplate.query(sqlRequest,
+                (resulSet, rowNum) -> directorParameters(resulSet)));
     }
 
     private Director directorParameters(ResultSet resultSet) {
@@ -91,11 +95,5 @@ public class DirectorDbStorage implements DirectorStorage {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public boolean containsDirector(int id) {
-        Long count = jdbcTemplate.queryForObject("select count(director_id) from directors where director_id = ?", Long.class, id);
-        return count == 1;
     }
 }

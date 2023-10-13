@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -30,4 +31,5 @@ public class Film {
     Set<Integer> likes;
     Set<Genre> genres;
     Set<Director> directors;
+    Integer rate;
 }

@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Primary
@@ -131,6 +133,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void deleteFilmById(int filmId) {
+
+    }
+
+    @Override
     public List<Film> getPopularFilms(int count) {
         String sqlRequest = String.format("SELECT f.film_id, COUNT(l.film_id) " +
                                           "FROM films AS f " +
@@ -148,30 +155,34 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+
+
+
+
     @Override
     public List<Film> searchFilms(String query, List<String> by, int count) {
-      //  List<Film> films = getPopularFilms(count);
+       List<Film> films = getPopularFilms(count);
 
         //(нужно, если проблему с count)
-        String sqlRequest = "SELECT * FROM films";
-        List<Film> films = jdbcTemplate.query(sqlRequest,
-                (resultSet, rowNum) -> {
-                    int mpaId = resultSet.getInt("rating_id");
-                   int filmId = resultSet.getInt("film_id");
-                   return Film.builder()
-                           .name(resultSet.getString("name"))
-                            .description(resultSet.getString("description"))
-                            .releaseDate((resultSet.getDate("release_date")).toLocalDate())
-                            .duration(resultSet.getInt("duration"))
-                            .mpa(new Mpa(mpaId, jdbcTemplate.queryForObject(
-                                    "SELECT name FROM rating WHERE rating_id = ?", String.class, mpaId)))
-                            .id(filmId)
-                            .rate(jdbcTemplate.queryForObject(
-                                    "SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmId))
-                            .genres(findGenresFilm(filmId))//genreRepository.findGenreByFilmId(filmId))
-                            .directors(findDirectorsFilm(filmId))
-                            .build();
-                });
+//        String sqlRequest = "SELECT * FROM films";
+//        List<Film> films = jdbcTemplate.query(sqlRequest,
+//                (resultSet, rowNum) -> {
+//                    int mpaId = resultSet.getInt("rating_id");
+//                   int filmId = resultSet.getInt("film_id");
+//                   return Film.builder()
+//                           .name(resultSet.getString("name"))
+//                            .description(resultSet.getString("description"))
+//                            .releaseDate((resultSet.getDate("release_date")).toLocalDate())
+//                            .duration(resultSet.getInt("duration"))
+//                            .mpa(new Mpa(mpaId, jdbcTemplate.queryForObject(
+//                                    "SELECT name FROM rating WHERE rating_id = ?", String.class, mpaId)))
+//                            .id(filmId)
+//                            .rate(jdbcTemplate.queryForObject(
+//                                    "SELECT count(user_id) FROM likes WHERE film_id=?", Integer.class, filmId))
+//                            .genres(findGenresFilm(filmId))//genreRepository.findGenreByFilmId(filmId))
+//                            .directors(findDirectorsFilm(filmId))
+//                            .build();
+//                });
 
         List<Film> findFilms = new ArrayList<>();
 

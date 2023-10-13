@@ -31,8 +31,10 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director getDirectorById(int id) {
+        if (containsDirector(id)){
             return jdbcTemplate.queryForObject("SELECT * FROM directors WHERE director_id = ?",
-                    (resultSet, rowNum) -> directorParameters(resultSet), id);
+                    (resultSet, rowNum) -> directorParameters(resultSet), id);}
+        throw new DirectorNotFoundException("Director not found");
     }
 
     @Override
@@ -55,19 +57,23 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director updateDirector(Director director) {
+        if (containsDirector(director.getId())){
         String sqlRequest = String.format("UPDATE directors " +
                         "SET name = '%s'" +
                         "WHERE director_id = '%d'",
                 director.getName(), director.getId());
         jdbcTemplate.execute(sqlRequest);
-        return director;
+        return director;}
+        throw new DirectorNotFoundException("Director not found");
     }
 
     @Override
     public void deleteDirector(int id) {
-//        if (!containsDirector(id)){ throw new DirectorNotFoundException("Director not found");}
-        String sqlRequest = String.format("DELETE FROM directors WHERE director_id = %d", id);
-        jdbcTemplate.execute(sqlRequest);
+       if (!containsDirector(id)){ throw new DirectorNotFoundException("Director not found");}
+//        String sqlRequest = String.format("DELETE FROM directors WHERE director_id = %d", id);
+//        jdbcTemplate.execute(sqlRequest);
+        jdbcTemplate.update("delete from directors where id = ?", Long.valueOf(id));
+
     }
 
     @Override
@@ -87,9 +93,9 @@ public class DirectorDbStorage implements DirectorStorage {
         }
     }
 
-//    @Override
-//    public boolean containsDirector(int id) {
-//        Long count = jdbcTemplate.queryForObject("select count(director_id) from directors where director_id = ?", Long.class, id);
-//        return count == 1;
-//    }
+    @Override
+    public boolean containsDirector(int id) {
+        Long count = jdbcTemplate.queryForObject("select count(director_id) from directors where director_id = ?", Long.class, id);
+        return count == 1;
+    }
 }

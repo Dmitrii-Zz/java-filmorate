@@ -17,5 +17,5 @@ public interface DirectorStorage {
     void deleteDirector(int id);
 
     boolean findDirectorById(int id);
-   // public boolean containsDirector(int id);
+    public boolean containsDirector(int id);
 }

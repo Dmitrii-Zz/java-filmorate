@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -58,6 +59,18 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film save(Film film) {
+
+        Set<Director> directors = film.getDirectors();
+           if (directors != null) {
+            for (Director dir : directors) {
+                if (directorRepository.containsDirector(dir.getId())){
+                directorFilmRepository.addFilmByDirector(film.getId(), dir.getId());
+                dir.setName(directorRepository.getDirectorById(dir.getId()).getName());}
+                throw new DirectorNotFoundException("Director not exist");
+            }}
+
+
+
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         String sqlRequest =
@@ -84,14 +97,10 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
 
+
+
       //  insertDirectorsInTable(film);
-        Set<Director> directors = film.getDirectors();
-        if (directors != null) {
-            for (Director dir : directors) {
-                directorFilmRepository.addFilmByDirector(film.getId(), dir.getId());
-                dir.setName(directorRepository.getDirectorById(dir.getId()).getName());
-            }
-        }
+
 
 //        if (film.getGenres().stream().mapToInt(Genre::getId).toArray() != null) {
 //            insertGenresInTable(film);

@@ -19,7 +19,14 @@ public class DirectorFilmDbStorage implements DirectorFilmStorage {
     }
 
     @Override
+    public void deleteDirectorsByFilmId(int id) {
+        String sqlRequest =
+                String.format("DELETE FROM director_film WHERE film_id = %d;", id);
+        jdbcTemplate.execute(sqlRequest);
+    }
+
+    @Override
     public void deleteDirectorFilm(int id) {
-        jdbcTemplate.execute(String.format("DELETE FROM director_film WHERE director_id = %d", id));
+        jdbcTemplate.execute(String.format("DELETE FROM director_film WHERE director_id = %d;", id));
     }
 }

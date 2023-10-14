@@ -29,7 +29,7 @@ public class RecommendationsTests {
     private final FilmController filmController;
 
     @Test
-    void getFilmsRecomendation(){
+    void getFilmsRecomendation() {
         Film film1 = Film.builder().name("Film1").description("deskr").releaseDate(LocalDate.of(2000, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"), new Genre(2, "Комедия"))).id(1).mpa(new Mpa(1, "name")).build();
         Film film2 = Film.builder().name("Film2").description("deskr").releaseDate(LocalDate.of(1999, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"))).id(2).mpa(new Mpa(1, "name")).build();
         Film film3 = Film.builder().name("Film3").description("deskr").releaseDate(LocalDate.of(1980, 1, 1)).duration(120).genres(Set.of(new Genre(2, "Комедия"))).id(3).mpa(new Mpa(1, "name")).build();
@@ -45,7 +45,7 @@ public class RecommendationsTests {
 
         List<Film> recomendations = userController.getFilmsRecomendation(1);
         log.info("Тест запроса списка рекомендаций без лайканых фильмов");
-        Assertions.assertEquals(0,recomendations.size(),"Неверный вывод при отсутствии лайков");
+        Assertions.assertEquals(0, recomendations.size(), "Неверный вывод при отсутствии лайков");
 
         filmController.addLikeFilm(3, 1);
         filmController.addLikeFilm(1, 2);
@@ -56,6 +56,6 @@ public class RecommendationsTests {
 
         log.info("Тест запроса списка рекомендаций");
         recomendations = userController.getFilmsRecomendation(1);
-        Assertions.assertEquals(2,recomendations.get(0).getId(),"Неверный вывод рекомендаций");
+        Assertions.assertEquals(2, recomendations.get(0).getId(), "Неверный вывод рекомендаций");
     }
 }

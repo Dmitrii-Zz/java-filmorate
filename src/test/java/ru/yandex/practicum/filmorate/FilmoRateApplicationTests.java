@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.GenreController;
 import ru.yandex.practicum.filmorate.controller.RatingController;
@@ -26,6 +27,7 @@ import java.util.Set;
 @AutoConfigureTestDatabase
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class FilmoRateApplicationTests {
     private final UserController userController;
     private final FilmController filmController;
@@ -192,4 +194,6 @@ public class FilmoRateApplicationTests {
         filmController.deleteLikeFilm(1, 1);
         assertEquals(0, filmController.getFilm(1).getLikes().size());
     }
+
+
 }

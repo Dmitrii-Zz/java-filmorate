@@ -55,6 +55,7 @@ public class MostPopularTests {
         log.info("Тест запроса популярных фильмов с фильтром по годам и жанру");
         popularFilm = filmController.popularFilms(10, 1, 2000);
         Assertions.assertEquals(filmController.getFilm(1), popularFilm.get(0), "При фильтре по жанру и году выдает неверный фильм");
+        //пусто
 
 
     }

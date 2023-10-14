@@ -7,16 +7,21 @@ import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ru.yandex.practicum.filmorate.Constants.*;
+import static ru.yandex.practicum.filmorate.Constants.CORRECT_COUNT;
+import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
+import static ru.yandex.practicum.filmorate.Constants.MAX_LENGTH_DESCRIPTION;
 import static ru.yandex.practicum.filmorate.Constants.MIN_DURATION_FILM;
+import static ru.yandex.practicum.filmorate.Constants.VALIDATE_DATE_FILM;
 
 @Service
 @Slf4j
@@ -25,6 +30,7 @@ public class FilmService {
     private final FilmStorage filmRepository;
     private final UserStorage userRepository;
     private final LikeFilmsStorage likeFilmRepository;
+    private final DirectorStorage directorRepository;
 
     public List<Film> findAll() {
         return filmRepository.findAll();
@@ -53,7 +59,6 @@ public class FilmService {
         likeFilmRepository.addLike(filmId, userId);
     }
 
-
     public void deleteLike(int filmId, int userId) {
         validateIdFilm(filmId);
         validateIdUser(userId);
@@ -61,12 +66,25 @@ public class FilmService {
     }
 
     public List<Film> popularFilms(int count) {
+        validateCount(count);
+        return filmRepository.getPopularFilms(count);
+    }
 
+    public void validateCount(int count) {
         if (count < CORRECT_COUNT) {
             throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
         }
+    }
 
-        return filmRepository.getPopularFilms(count);
+    public List<Film> getFilmsByDirector(int id, String sortBy) {
+        directorRepository.findDirectorById(id);
+        return filmRepository.getFilmsByDirector(id, sortBy);
+    }
+
+    public Collection<Film> commonFilms(Integer userId, Integer friendId) {
+        validateIdUser(userId);
+        validateIdUser(friendId);
+        return filmRepository.getCommonFilms(userId, friendId);
     }
 
     private Set<Integer> createListLikes(int filmId, int userId) {
@@ -77,6 +95,16 @@ public class FilmService {
 
         likes.add(userId);
         return likes;
+    }
+
+    public List<Film> searchFilms(String query, List<String> by, int count) {
+        validateCount(count);
+        return filmRepository.searchFilms(query, by, count);
+    }
+
+    public void deleteFilmById(int filmId) {
+        validateIdFilm(filmId);
+        filmRepository.deleteFilmById(filmId);
     }
 
     private void validateIdFilm(int id) {

@@ -30,9 +30,9 @@ public class MostPopularTests {
 
     @Test
     void mostPopulartest() {
-        Film film1 = Film.builder().name("Film1").description("deskr").releaseDate(LocalDate.of(2000, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"), new Genre(2, "Комедия"))).id(1).mpa(new Mpa(1, "name")).build();
-        Film film2 = Film.builder().name("Film2").description("deskr").releaseDate(LocalDate.of(1999, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"))).id(2).mpa(new Mpa(1, "name")).build();
-        Film film3 = Film.builder().name("Film3").description("deskr").releaseDate(LocalDate.of(1980, 1, 1)).duration(120).genres(Set.of(new Genre(2, "Комедия"))).id(3).mpa(new Mpa(1, "name")).build();
+        Film film1 = Film.builder().name("Film1").description("deskr").releaseDate(LocalDate.of(2000, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"), new Genre(2, "Комедия"))).mpa(new Mpa(1, "name")).build();
+        Film film2 = Film.builder().name("Film2").description("deskr").releaseDate(LocalDate.of(1999, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"))).mpa(new Mpa(1, "name")).build();
+        Film film3 = Film.builder().name("Film3").description("deskr").releaseDate(LocalDate.of(1980, 1, 1)).duration(120).genres(Set.of(new Genre(2, "Комедия"))).mpa(new Mpa(1, "name")).build();
         User user1 = User.builder().name("name1").login("login1").email("email1@mail.ru").birthday(LocalDate.of(2000, 1, 1)).id(1).build();
         User user2 = User.builder().name("name2").login("login2").email("email2@mail.ru").birthday(LocalDate.of(2000, 1, 1)).id(2).build();
         filmController.createFilm(film1);

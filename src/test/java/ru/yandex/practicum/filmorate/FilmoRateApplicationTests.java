@@ -198,32 +198,5 @@ public class FilmoRateApplicationTests {
         assertEquals(0, filmController.getFilm(1).getLikes().size());
     }
 
-    @Test
-    void addMostPopularsTest() {
-        Film film1 = Film.builder().name("Film1").description("deskr").releaseDate(LocalDate.of(2000, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"), new Genre(2, "Комедия"))).id(1).mpa(new Mpa(1, "name")).build();
-        Film film2 = Film.builder().name("Film2").description("deskr").releaseDate(LocalDate.of(1999, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"))).id(2).mpa(new Mpa(1, "name")).build();
-        Film film3 = Film.builder().name("Film3").description("deskr").releaseDate(LocalDate.of(1980, 1, 1)).duration(120).genres(Set.of(new Genre(2, "Комедия"))).id(3).mpa(new Mpa(1, "name")).build();
-        User user1 = User.builder().name("name1").login("login1").email("email1@mail.ru").birthday(LocalDate.of(2000, 1, 1)).id(1).build();
-        User user2 = User.builder().name("name2").login("login2").email("email2@mail.ru").birthday(LocalDate.of(2000, 1, 1)).id(2).build();
-        filmController.createFilm(film1);
-        filmController.createFilm(film2);
-        filmController.createFilm(film3);
-        userController.createUser(user1);
-        userController.createUser(user2);
-        filmController.addLikeFilm(3, 1);
-        filmController.addLikeFilm(2, 1);
-        filmController.addLikeFilm(2, 2);
-
-        List<Film> popularFilm = filmController.popularFilms(10, 0, 1999);
-        Assertions.assertEquals(filmController.getFilm(2), popularFilm.get(0), "При фильтре по году выдает неверный фильм");
-
-        popularFilm = filmController.popularFilms(10, 2, 0);
-        Assertions.assertEquals(filmController.getFilm(3), popularFilm.get(0), "При фильтре по жанру выдает неверный фильм");
-
-        popularFilm = filmController.popularFilms(10, 1, 2000);
-        Assertions.assertEquals(filmController.getFilm(1), popularFilm.get(0), "При фильтре по жанру и году выдает неверный фильм");
-
-
-    }
 }
 

@@ -55,6 +55,7 @@ public class FilmService {
         likeFilmRepository.addLike(filmId, userId);
     }
 
+
     public void deleteLike(int filmId, int userId) {
         validateIdFilm(filmId);
         validateIdUser(userId);
@@ -63,14 +64,16 @@ public class FilmService {
 
     public List<Film> popularFilms(Integer count, Integer genreId, Integer year) {
         validateCount(count);
-        //пустой комментарий
         return filmRepository.getPopularFilms(count, genreId, year);
     }
 
-    public void validateCount(int count) {
+    public List<Film> popularFilms(int count) {
+
         if (count < CORRECT_COUNT) {
             throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
         }
+
+        return filmRepository.getPopularFilms(count);
     }
 
     public List<Film> getFilmsByDirector(int id, String sortBy) {
@@ -82,6 +85,15 @@ public class FilmService {
         return filmRepository.getFilmsByDirector(id, sortBy);
     }
 
+    public List<Film> searchFilms(String query, List<String> by) {
+        return filmRepository.searchFilms(query, by);
+    }
+
+    public void deleteFilmById(int filmId) {
+        validateIdFilm(filmId);
+        filmRepository.deleteFilmById(filmId);
+    }
+
     private Set<Integer> createListLikes(int filmId, int userId) {
         Set<Integer> likes = filmRepository.getFilmById(filmId).getLikes();
         if (likes == null) {
@@ -90,16 +102,6 @@ public class FilmService {
 
         likes.add(userId);
         return likes;
-    }
-
-    public List<Film> searchFilms(String query, List<String> by, int count) {
-        validateCount(count);
-        return filmRepository.searchFilms(query, by, count);
-    }
-
-    public void deleteFilmById(int filmId) {
-        validateIdFilm(filmId);
-        filmRepository.deleteFilmById(filmId);
     }
 
     private void validateIdFilm(int id) {
@@ -147,6 +149,12 @@ public class FilmService {
 
         if (film.getDuration() <= MIN_DURATION_FILM) {
             throw new FilmValidationException("Продолжительность фильма не может быть отрицательной.");
+        }
+    }
+
+    private void validateCount(int count) {
+        if (count < CORRECT_COUNT) {
+            throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
         }
     }
 }

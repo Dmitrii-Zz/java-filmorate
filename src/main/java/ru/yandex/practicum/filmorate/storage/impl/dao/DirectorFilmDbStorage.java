@@ -14,7 +14,7 @@ public class DirectorFilmDbStorage implements DirectorFilmStorage {
     public void addFilmByDirector(int idFilm, int idDirector) {
         String sqlRequest =
                 String.format("MERGE INTO director_film KEY (film_id, director_id) VALUES (%d, %d);",
-                idFilm, idDirector);
+                        idFilm, idDirector);
         jdbcTemplate.execute(sqlRequest);
     }
 

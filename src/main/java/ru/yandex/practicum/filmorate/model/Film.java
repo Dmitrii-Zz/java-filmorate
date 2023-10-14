@@ -37,12 +37,7 @@ public class Film {
 
     Set<Genre> genres;
 
-    Integer rate;
-
-
-    Set<Director> director;
     Set<Director> directors;
 
-
-
+    Integer rate;
 }

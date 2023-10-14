@@ -44,7 +44,8 @@ public class FilmoRateApplicationTests {
         user.setEmail("Nikolay@yandex.ru");
         user.setLogin("Nikolay1995");
         user.setBirthday(LocalDate.of(1995, 5, 15));
-        User saveUser = userController.createUser(user);
+        userController.createUser(user);
+        User saveUser = userController.getUser(1);
 
         assertAll("Проверка пользователя",
                 () -> assertEquals(1, saveUser.getId()),

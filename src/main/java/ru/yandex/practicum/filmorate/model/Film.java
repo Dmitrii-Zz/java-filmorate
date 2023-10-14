@@ -39,7 +39,7 @@ public class Film {
 
     Integer rate;
 
-    Set<Director> director;
+    Set<Director> directors;
 
     public Film(String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;

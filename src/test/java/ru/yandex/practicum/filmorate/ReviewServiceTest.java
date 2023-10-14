@@ -30,10 +30,19 @@ public class ReviewServiceTest {
 
     @BeforeEach
     public void prepareTests() {
-        Film film = new Film("Film1", "Description_of_film_1", LocalDate.now(), 1);
+        Film film = new Film();
         Mpa mpa = new Mpa(1);
         film.setMpa(mpa);
-        User user = new User("u1@ya.ru", "u1Login", "u1name", LocalDate.now());
+        film.setName("Film1");
+        film.setDescription("Description_of_film_1");
+        film.setReleaseDate(LocalDate.now());
+
+        User user = new User();
+        user.setEmail("u1@ya.ru");
+        user.setLogin("u1Login");
+        user.setName("u1name");
+        user.setBirthday(LocalDate.now());
+
         Review review = new Review("content_of_review1", true, 1,1);
 
         filmDbStorage.save(film);

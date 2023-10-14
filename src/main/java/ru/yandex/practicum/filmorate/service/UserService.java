@@ -85,6 +85,10 @@ public class UserService {
         return friends;
     }
 
+    public void deleteUserById(int userId) {
+        userRepository.deleteUserById(userId);
+    }
+
     private void validationId(int id) {
         if (id < CORRECT_ID) {
             throw new UserNotFoundException(String.format("Передан неверный ИД пользователя - id = \"%d\" ", id));

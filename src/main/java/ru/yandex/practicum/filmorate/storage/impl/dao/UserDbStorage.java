@@ -85,7 +85,7 @@ public class UserDbStorage implements UserStorage {
         return getUserById(user.getId());
     }
 
-    
+
     private User getUserFromDb(SqlRowSet userRows) {
         return User.builder()
                 .email(userRows.getString("email"))

@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.*;
+import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
@@ -14,11 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ru.yandex.practicum.filmorate.Constants.CORRECT_COUNT;
-import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
-import static ru.yandex.practicum.filmorate.Constants.MAX_LENGTH_DESCRIPTION;
-import static ru.yandex.practicum.filmorate.Constants.MIN_DURATION_FILM;
-import static ru.yandex.practicum.filmorate.Constants.VALIDATE_DATE_FILM;
+import static ru.yandex.practicum.filmorate.Constants.*;
 
 @Service
 @Slf4j
@@ -75,7 +74,11 @@ public class FilmService {
     }
 
     public List<Film> getFilmsByDirector(int id, String sortBy) {
-        directorRepository.findDirectorById(id);
+
+        if (!directorRepository.findDirectorById(id)) {
+            throw new DirectorNotFoundException(String.format("Режиссер с id = %d отсутствует", id));
+        }
+
         return filmRepository.getFilmsByDirector(id, sortBy);
     }
 

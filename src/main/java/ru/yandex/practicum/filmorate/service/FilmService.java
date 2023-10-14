@@ -13,16 +13,11 @@ import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ru.yandex.practicum.filmorate.Constants.CORRECT_COUNT;
-import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
-import static ru.yandex.practicum.filmorate.Constants.MAX_LENGTH_DESCRIPTION;
-import static ru.yandex.practicum.filmorate.Constants.MIN_DURATION_FILM;
-import static ru.yandex.practicum.filmorate.Constants.VALIDATE_DATE_FILM;
+import static ru.yandex.practicum.filmorate.Constants.*;
 
 @Service
 @Slf4j
@@ -66,9 +61,10 @@ public class FilmService {
         likeFilmRepository.deleteLike(filmId, userId);
     }
 
-    public List<Film> popularFilms(int count) {
+    public List<Film> popularFilms(Integer count, Integer genreId, Integer year) {
         validateCount(count);
-        return filmRepository.getPopularFilms(count);
+        //пустой комментарий
+        return filmRepository.getPopularFilms(count, genreId, year);
     }
 
     public void validateCount(int count) {
@@ -84,12 +80,6 @@ public class FilmService {
         }
 
         return filmRepository.getFilmsByDirector(id, sortBy);
-    }
-
-    public Collection<Film> commonFilms(Integer userId, Integer friendId) {
-        validateIdUser(userId);
-        validateIdUser(friendId);
-        return filmRepository.getCommonFilms(userId, friendId);
     }
 
     private Set<Integer> createListLikes(int filmId, int userId) {

@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
@@ -11,8 +13,6 @@ import java.util.Set;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
     int id;
@@ -39,12 +39,10 @@ public class Film {
 
     Integer rate;
 
+
+    Set<Director> director;
     Set<Director> directors;
 
-    public Film(String name, String description, LocalDate releaseDate, int duration) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
+
+
 }

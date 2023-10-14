@@ -1,12 +1,14 @@
-/*
+
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.GenreController;
 import ru.yandex.practicum.filmorate.controller.RatingController;
@@ -16,17 +18,19 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @SpringBootTest
 @AutoConfigureTestDatabase
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class FilmoRateApplicationTests {
     private final UserController userController;
     private final FilmController filmController;
@@ -50,7 +54,7 @@ public class FilmoRateApplicationTests {
                 () -> assertEquals("Nikolay1995", saveUser.getLogin()),
                 () -> assertEquals(LocalDate.of(1995, 5, 15), saveUser.getBirthday()),
                 () -> assertEquals(0, saveUser.getFriends().size())
-                );
+        );
 
         log.info("Тест создания второго пользователя:");
         User user2 = User.builder().build();
@@ -178,7 +182,7 @@ public class FilmoRateApplicationTests {
         assertEquals(1, filmController.getFilm(1).getLikes().size());
 
         log.info("Тест методы запроса списка популярных фильмов");
-        List<Film> popularFilms = filmController.popularFilms(10);
+        List<Film> popularFilms = filmController.popularFilms(10, 0, 0);
         assertEquals(2, popularFilms.size());
 
         log.info("Тест запроса рейтинга по ИД");
@@ -193,5 +197,33 @@ public class FilmoRateApplicationTests {
         filmController.deleteLikeFilm(1, 1);
         assertEquals(0, filmController.getFilm(1).getLikes().size());
     }
+
+    @Test
+    void addMostPopularsTest() {
+        Film film1 = Film.builder().name("Film1").description("deskr").releaseDate(LocalDate.of(2000, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"), new Genre(2, "Комедия"))).id(1).mpa(new Mpa(1, "name")).build();
+        Film film2 = Film.builder().name("Film2").description("deskr").releaseDate(LocalDate.of(1999, 1, 1)).duration(120).genres(Set.of(new Genre(1, "Драма"))).id(2).mpa(new Mpa(1, "name")).build();
+        Film film3 = Film.builder().name("Film3").description("deskr").releaseDate(LocalDate.of(1980, 1, 1)).duration(120).genres(Set.of(new Genre(2, "Комедия"))).id(3).mpa(new Mpa(1, "name")).build();
+        User user1 = User.builder().name("name1").login("login1").email("email1@mail.ru").birthday(LocalDate.of(2000, 1, 1)).id(1).build();
+        User user2 = User.builder().name("name2").login("login2").email("email2@mail.ru").birthday(LocalDate.of(2000, 1, 1)).id(2).build();
+        filmController.createFilm(film1);
+        filmController.createFilm(film2);
+        filmController.createFilm(film3);
+        userController.createUser(user1);
+        userController.createUser(user2);
+        filmController.addLikeFilm(3, 1);
+        filmController.addLikeFilm(2, 1);
+        filmController.addLikeFilm(2, 2);
+
+        List<Film> popularFilm = filmController.popularFilms(10, 0, 1999);
+        Assertions.assertEquals(filmController.getFilm(2), popularFilm.get(0), "При фильтре по году выдает неверный фильм");
+
+        popularFilm = filmController.popularFilms(10, 2, 0);
+        Assertions.assertEquals(filmController.getFilm(3), popularFilm.get(0), "При фильтре по жанру выдает неверный фильм");
+
+        popularFilm = filmController.popularFilms(10, 1, 2000);
+        Assertions.assertEquals(filmController.getFilm(1), popularFilm.get(0), "При фильтре по жанру и году выдает неверный фильм");
+
+
+    }
 }
-*/
+

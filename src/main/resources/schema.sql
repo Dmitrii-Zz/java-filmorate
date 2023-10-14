@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS directors (
 CREATE TABLE IF NOT EXISTS director_film (
     film_id INTEGER REFERENCES films (film_id) ON DELETE CASCADE,
     director_id INTEGER REFERENCES directors (director_id) ON DELETE CASCADE,
-    PRIMARY KEY (film_id, director_id);
+    PRIMARY KEY (film_id, director_id));
 
 CREATE TABLE IF NOT EXISTS reviews (
 	review_id INTEGER primary key auto_increment,
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 	is_positive boolean default 'true',
 	user_id INTEGER REFERENCES users (user_id) ON DELETE CASCADE,
 	film_id INTEGER REFERENCES films (film_id) ON DELETE CASCADE,
-    useful INTEGER default 0;
+    useful INTEGER default 0
 );
 
 CREATE TABLE IF NOT EXISTS reviews_likes (

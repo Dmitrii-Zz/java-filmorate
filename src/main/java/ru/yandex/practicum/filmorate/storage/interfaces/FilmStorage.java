@@ -26,5 +26,5 @@ public interface FilmStorage {
 
     List<Film> searchFilms(String query, List<String> by);
 
-    List<Film> searchFilms(String query, List<String> by, int count);
+  //  List<Film> searchFilms(String query, List<String> by, int count);
 }

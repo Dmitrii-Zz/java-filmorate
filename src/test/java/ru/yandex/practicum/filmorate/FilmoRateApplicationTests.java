@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @AutoConfigureTestDatabase
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class FilmoRateApplicationTests {
     private final UserController userController;
     private final FilmController filmController;
@@ -44,8 +43,7 @@ public class FilmoRateApplicationTests {
         user.setEmail("Nikolay@yandex.ru");
         user.setLogin("Nikolay1995");
         user.setBirthday(LocalDate.of(1995, 5, 15));
-        userController.createUser(user);
-        User saveUser = userController.getUser(1);
+        User saveUser = userController.createUser(user);
 
         assertAll("Проверка пользователя",
                 () -> assertEquals(1, saveUser.getId()),

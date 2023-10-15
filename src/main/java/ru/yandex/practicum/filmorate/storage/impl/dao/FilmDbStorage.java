@@ -199,56 +199,7 @@ public class FilmDbStorage implements FilmStorage {
 
         return films;
     }
-
-    @Override
-    public List<Film> searchFilms(String query, List<String> by, int count) {
-        List<Film> films = getPopularFilms(10, 0, 0);
-        List<Film> findFilms = new ArrayList<>();
-
-        if ((query != null) && ((by != null) && (by.contains("title") && !by.contains("director")))) {
-            for (Film f : films) {
-                if (f.getName().toLowerCase().contains(query.toLowerCase())) {
-                    findFilms.add(f);
-                }
-            }
-            return sortFilms(findFilms);
-        }
-
-        if ((query != null) && ((by != null) && (by.contains("director") && !by.contains("title")))) {
-            for (Film f : films) {
-                for (Director d : directorRepository.findDirectorFilm(f.getId())) {
-                    if (d.getName().toLowerCase().contains(query.toLowerCase())) {
-                        if (findFilms.contains(f)) {
-                            break;
-                        }
-                        findFilms.add(f);
-                    }
-                }
-            }
-            return sortFilms(findFilms);
-        }
-
-        if ((query != null) && ((by != null) && (by.contains("title") && (by.contains("director"))))) {
-            for (Film f : films) {
-                for (Director d : directorRepository.findDirectorFilm(f.getId())) {
-                    if (d.getName().toLowerCase().contains(query.toLowerCase()) || (f.getName().toLowerCase().contains(query.toLowerCase()))) {
-                        if (findFilms.contains(f)) {
-                            break;
-                        }
-                        findFilms.add(f);
-                    }
-                }
-            }
-            return sortFilms(findFilms);
-        }
-
-        if ((query == null) && (by == null)) {
-            return sortFilms(films);
-        }
-
-        throw new FilmNotFoundException("Wrong parameters, 'query' can't be empty and 'by' mast be one of: title / director / title,director");
-    }
-
+    
     @Override
     public List<Film> getFilmsByDirector(int id, String sortBy) {
         String sqlRequest;

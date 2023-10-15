@@ -18,6 +18,9 @@ public class Director {
         this.name = name;
     }
 
+    public Director(int id) {
+        this.id = id;
+    }
     public Director() {
 
     }

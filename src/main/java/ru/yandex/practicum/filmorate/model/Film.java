@@ -47,5 +47,4 @@ public class Film {
     Set<Director> directors;
 
     Integer rate;
-
 }

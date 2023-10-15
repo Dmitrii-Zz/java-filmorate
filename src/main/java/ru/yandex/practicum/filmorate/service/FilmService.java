@@ -6,22 +6,17 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.*;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ru.yandex.practicum.filmorate.Constants.CORRECT_COUNT;
-import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
-import static ru.yandex.practicum.filmorate.Constants.MAX_LENGTH_DESCRIPTION;
-import static ru.yandex.practicum.filmorate.Constants.MIN_DURATION_FILM;
-import static ru.yandex.practicum.filmorate.Constants.VALIDATE_DATE_FILM;
+import static ru.yandex.practicum.filmorate.Constants.*;
 
 @Service
 @Slf4j
@@ -31,6 +26,7 @@ public class FilmService {
     private final UserStorage userRepository;
     private final LikeFilmsStorage likeFilmRepository;
     private final DirectorStorage directorRepository;
+    private final FeedStorage feedRepository;
 
     public List<Film> findAll() {
         return filmRepository.findAll();
@@ -57,12 +53,26 @@ public class FilmService {
         validateIdUser(userId);
         filmRepository.getFilmById(filmId).setLikes(createListLikes(filmId, userId));
         likeFilmRepository.addLike(filmId, userId);
+        Feed feed = new Feed();
+        feed.setUserId(userId);
+        feed.setEntityId(filmId);
+        feed.setTimestamp(Instant.now().toEpochMilli());
+        feed.setEventType("LIKE");
+        feed.setOperation("ADD");
+        feedRepository.addFeed(feed);
     }
 
     public void deleteLike(int filmId, int userId) {
         validateIdFilm(filmId);
         validateIdUser(userId);
         likeFilmRepository.deleteLike(filmId, userId);
+        Feed feed = new Feed();
+        feed.setUserId(userId);
+        feed.setEntityId(filmId);
+        feed.setTimestamp(Instant.now().toEpochMilli());
+        feed.setEventType("LIKE");
+        feed.setOperation("REMOVE");
+        feedRepository.addFeed(feed);
     }
 
     public List<Film> popularFilms(int count) {

@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserValidationException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.interfaces.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +22,7 @@ import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
 public class UserService {
     private final UserStorage userRepository;
     private final FriendshipStorage friendshipRepository;
+    private final FeedStorage feedRepository;
 
     public User getUser(int id) {
         validationId(id);
@@ -48,6 +52,13 @@ public class UserService {
         User friend = userRepository.getUserById(friendId);
         user.getFriends().add(friend.getId());
         friendshipRepository.addFriend(id, friendId);
+        Feed feed = new Feed();
+        feed.setUserId(id);
+        feed.setEntityId(friendId);
+        feed.setTimestamp(Instant.now().toEpochMilli());
+        feed.setEventType("FRIEND");
+        feed.setOperation("ADD");
+        feedRepository.addFeed(feed);
     }
 
     public void removeFriend(int id, int friendId) {
@@ -56,6 +67,13 @@ public class UserService {
         User friend = userRepository.getUserById(friendId);
         user.getFriends().remove(friend.getId());
         friendshipRepository.removeFriend(id, friendId);
+        Feed feed = new Feed();
+        feed.setUserId(id);
+        feed.setEntityId(friendId);
+        feed.setTimestamp(Instant.now().toEpochMilli());
+        feed.setEventType("FRIEND");
+        feed.setOperation("REMOVE");
+        feedRepository.addFeed(feed);
     }
 
     public List<User> findMutualFriends(int id, int otherId) {
@@ -83,6 +101,11 @@ public class UserService {
         }
 
         return friends;
+    }
+
+    public List<Feed> getUserFeeds(int id) {
+        validationId(id);
+        return feedRepository.getUserFeeds(id);
     }
 
     public void deleteUserById(int userId) {

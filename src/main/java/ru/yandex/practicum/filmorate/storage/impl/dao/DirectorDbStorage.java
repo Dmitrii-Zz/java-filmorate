@@ -39,7 +39,7 @@ public class DirectorDbStorage implements DirectorStorage {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         String sqlRequest =
-                String.format("INSERT INTO directors (name) VALUES (?)");
+                "INSERT INTO directors (name) VALUES (?)";
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
@@ -49,16 +49,16 @@ public class DirectorDbStorage implements DirectorStorage {
         }, keyHolder);
 
         director.setId((int) keyHolder.getKey());
-        log.info("Возвращаем режиссера:" + director.toString());
+        log.info("Возвращаем режиссера:" + director);
         return director;
     }
 
     @Override
     public Director updateDirector(Director director) {
         String sqlRequest = String.format("UPDATE directors " +
-                                          "SET name = '%s'" +
-                                          "WHERE director_id = '%d'",
-                                       director.getName(), director.getId());
+                        "SET name = '%s'" +
+                        "WHERE director_id = '%d'",
+                director.getName(), director.getId());
         jdbcTemplate.execute(sqlRequest);
         return director;
     }

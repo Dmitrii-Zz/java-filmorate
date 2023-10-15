@@ -41,10 +41,10 @@ public class GenreDbStorage implements GenreStorage {
     public Set<Genre> findGenreByFilmId(int filmId) {
         Set<Genre> genres = new HashSet<>();
         String sqlRequest = String.format("SELECT gf.genre_id, g.name " +
-                                          "FROM genre_film AS gf " +
-                                          "LEFT OUTER JOIN genres AS g ON gf.genre_id = g.GENRE_ID " +
-                                          "WHERE gf.film_id = %d " +
-                                          "ORDER BY gf.genre_id ASC;", filmId);
+                "FROM genre_film AS gf " +
+                "LEFT OUTER JOIN genres AS g ON gf.genre_id = g.GENRE_ID " +
+                "WHERE gf.film_id = %d " +
+                "ORDER BY gf.genre_id ASC;", filmId);
 
         SqlRowSet genresRows = jdbcTemplate.queryForRowSet(sqlRequest);
         while (genresRows.next()) {

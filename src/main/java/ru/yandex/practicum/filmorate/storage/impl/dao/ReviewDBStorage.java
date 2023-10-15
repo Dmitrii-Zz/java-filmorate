@@ -66,7 +66,7 @@ public class ReviewDBStorage implements ReviewStorage {
                 review.getContent(),
                 review.getIsPositive(),
                 review.getReviewId()
-                );
+        );
 
         return getReviewById(review.getReviewId());
     }
@@ -131,7 +131,7 @@ public class ReviewDBStorage implements ReviewStorage {
         String sqlUpdateUseful = "UPDATE REVIEWS SET USEFUL = USEFUL + 1 WHERE REVIEW_ID = ?";
 
         jdbcTemplate.update(sqlInsert, reviewId, userId);
-        jdbcTemplate.update(sqlUpdateUseful,reviewId);
+        jdbcTemplate.update(sqlUpdateUseful, reviewId);
 
     }
 
@@ -142,7 +142,7 @@ public class ReviewDBStorage implements ReviewStorage {
         String sqlUpdateUseful = "UPDATE REVIEWS SET USEFUL = USEFUL - 1 WHERE REVIEW_ID = ?";
 
         jdbcTemplate.update(sqlInsert, reviewId, userId);
-        jdbcTemplate.update(sqlUpdateUseful,reviewId);
+        jdbcTemplate.update(sqlUpdateUseful, reviewId);
 
     }
 
@@ -153,7 +153,7 @@ public class ReviewDBStorage implements ReviewStorage {
         String sqlUpdateUseful = "UPDATE REVIEWS SET USEFUL = USEFUL - 1 WHERE REVIEW_ID = ?";
 
         jdbcTemplate.update(sqlInsert, reviewId, userId);
-        jdbcTemplate.update(sqlUpdateUseful,reviewId);
+        jdbcTemplate.update(sqlUpdateUseful, reviewId);
 
     }
 
@@ -164,7 +164,7 @@ public class ReviewDBStorage implements ReviewStorage {
         String sqlUpdateUseful = "UPDATE REVIEWS SET USEFUL = USEFUL + 1 WHERE REVIEW_ID = ?";
 
         jdbcTemplate.update(sqlInsert, reviewId, userId);
-        jdbcTemplate.update(sqlUpdateUseful,reviewId);
+        jdbcTemplate.update(sqlUpdateUseful, reviewId);
 
     }
 

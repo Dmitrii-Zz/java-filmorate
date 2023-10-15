@@ -199,7 +199,7 @@ public class FilmDbStorage implements FilmStorage {
 
         return films;
     }
-    
+
     @Override
     public List<Film> getFilmsByDirector(int id, String sortBy) {
         String sqlRequest;

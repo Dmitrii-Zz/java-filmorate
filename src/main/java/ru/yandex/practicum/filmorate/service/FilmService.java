@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
@@ -75,26 +76,36 @@ public class FilmService {
         feedRepository.addFeed(feed);
     }
 
-    public List<Film> popularFilms(int count) {
+    public List<Film> popularFilms(Integer count, Integer genreId, Integer year) {
         validateCount(count);
-        return filmRepository.getPopularFilms(count);
+        return filmRepository.getPopularFilms(count, genreId, year);
     }
 
-    public void validateCount(int count) {
+    public List<Film> popularFilms(int count) {
+
         if (count < CORRECT_COUNT) {
             throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
         }
+
+        return filmRepository.getPopularFilms(count);
     }
 
     public List<Film> getFilmsByDirector(int id, String sortBy) {
-        directorRepository.findDirectorById(id);
+
+        if (!directorRepository.findDirectorById(id)) {
+            throw new DirectorNotFoundException(String.format("Режиссер с id = %d отсутствует", id));
+        }
+
         return filmRepository.getFilmsByDirector(id, sortBy);
     }
 
-    public Collection<Film> commonFilms(Integer userId, Integer friendId) {
-        validateIdUser(userId);
-        validateIdUser(friendId);
-        return filmRepository.getCommonFilms(userId, friendId);
+    public List<Film> searchFilms(String query, List<String> by) {
+        return filmRepository.searchFilms(query, by);
+    }
+
+    public void deleteFilmById(int filmId) {
+        validateIdFilm(filmId);
+        filmRepository.deleteFilmById(filmId);
     }
 
     private Set<Integer> createListLikes(int filmId, int userId) {
@@ -105,16 +116,6 @@ public class FilmService {
 
         likes.add(userId);
         return likes;
-    }
-
-    public List<Film> searchFilms(String query, List<String> by, int count) {
-        validateCount(count);
-        return filmRepository.searchFilms(query, by, count);
-    }
-
-    public void deleteFilmById(int filmId) {
-        validateIdFilm(filmId);
-        filmRepository.deleteFilmById(filmId);
     }
 
     private void validateIdFilm(int id) {
@@ -162,6 +163,12 @@ public class FilmService {
 
         if (film.getDuration() <= MIN_DURATION_FILM) {
             throw new FilmValidationException("Продолжительность фильма не может быть отрицательной.");
+        }
+    }
+
+    private void validateCount(int count) {
+        if (count < CORRECT_COUNT) {
+            throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
         }
     }
 }

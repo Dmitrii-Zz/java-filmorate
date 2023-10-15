@@ -37,14 +37,15 @@ public class Film {
 
     Set<Genre> genres;
 
-    Integer rate;
-
-    Set<Director> director;
-
     public Film(String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
     }
+
+    Set<Director> directors;
+
+    Integer rate;
+
 }

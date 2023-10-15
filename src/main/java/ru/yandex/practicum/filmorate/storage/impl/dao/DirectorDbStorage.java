@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -38,13 +39,12 @@ public class DirectorDbStorage implements DirectorStorage {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         String sqlRequest =
-                String.format("INSERT INTO directors (director_id, name) VALUES (?, ?)");
+                String.format("INSERT INTO directors (name) VALUES (?)");
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(sqlRequest, new String[]{"director_id"});
-            ps.setInt(1, director.getId());
-            ps.setString(2, director.getName());
+            ps.setString(1, director.getName());
             return ps;
         }, keyHolder);
 
@@ -73,6 +73,17 @@ public class DirectorDbStorage implements DirectorStorage {
     public boolean findDirectorById(int id) {
         SqlRowSet directorRows = jdbcTemplate.queryForRowSet("SELECT * FROM directors WHERE director_id = ?", id);
         return directorRows.next();
+    }
+
+    @Override
+    public Set<Director> findDirectorFilm(int filmId) {
+
+        String sqlRequest = String.format("SELECT d.* FROM DIRECTORS AS d\n" +
+                "LEFT OUTER JOIN DIRECTOR_FILM df ON d.DIRECTOR_ID = df.DIRECTOR_ID \n" +
+                "WHERE df.FILM_ID = %d;", filmId);
+
+        return Set.copyOf(jdbcTemplate.query(sqlRequest,
+                (resulSet, rowNum) -> directorParameters(resulSet)));
     }
 
     private Director directorParameters(ResultSet resultSet) {

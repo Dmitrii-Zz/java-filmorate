@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
@@ -12,8 +13,7 @@ import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static ru.yandex.practicum.filmorate.Constants.CORRECT_ID;
 
@@ -173,5 +173,10 @@ public class UserService {
         if (id == id1) {
             throw new UserValidationException("Нельзя добавить или удалить себя из списка друзей.");
         }
+    }
+
+    public List<Film> getFilmsRecomendation(int id) {
+        validationId(id);
+        return userRepository.getFilmsRecomendation(id);
     }
 }

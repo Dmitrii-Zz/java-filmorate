@@ -181,7 +181,7 @@ public class FilmoRateApplicationTests {
         assertEquals(1, filmController.getFilm(1).getLikes().size());
 
         log.info("Тест методы запроса списка популярных фильмов");
-        List<Film> popularFilms = filmController.popularFilms(10);
+        List<Film> popularFilms = filmController.popularFilms(10, 0, 0);
         assertEquals(2, popularFilms.size());
 
         log.info("Тест запроса рейтинга по ИД");

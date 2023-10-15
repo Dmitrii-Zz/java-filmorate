@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Set;
 
 import static ru.yandex.practicum.filmorate.Constants.*;
-import static ru.yandex.practicum.filmorate.Constants.MIN_DURATION_FILM;
 
 @Service
 @Slf4j
@@ -63,6 +62,11 @@ public class FilmService {
         likeFilmRepository.deleteLike(filmId, userId);
     }
 
+    public List<Film> popularFilms(Integer count, Integer genreId, Integer year) {
+        validateCount(count);
+        return filmRepository.getPopularFilms(count, genreId, year);
+    }
+
     public List<Film> popularFilms(int count) {
 
         if (count < CORRECT_COUNT) {
@@ -79,6 +83,15 @@ public class FilmService {
         }
 
         return filmRepository.getFilmsByDirector(id, sortBy);
+    }
+
+    public List<Film> searchFilms(String query, List<String> by) {
+        return filmRepository.searchFilms(query, by);
+    }
+
+    public void deleteFilmById(int filmId) {
+        validateIdFilm(filmId);
+        filmRepository.deleteFilmById(filmId);
     }
 
     private Set<Integer> createListLikes(int filmId, int userId) {
@@ -136,6 +149,12 @@ public class FilmService {
 
         if (film.getDuration() <= MIN_DURATION_FILM) {
             throw new FilmValidationException("Продолжительность фильма не может быть отрицательной.");
+        }
+    }
+
+    private void validateCount(int count) {
+        if (count < CORRECT_COUNT) {
+            throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
         }
     }
 }

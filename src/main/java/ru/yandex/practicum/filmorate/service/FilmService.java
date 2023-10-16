@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.*;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -106,6 +107,13 @@ public class FilmService {
         validateIdFilm(filmId);
         filmRepository.deleteFilmById(filmId);
     }
+
+    public Collection<Film> commonFilms(Integer userId, Integer friendId) {
+        validateIdUser(userId);
+        validateIdUser(friendId);
+        return filmRepository.getCommonFilms(userId, friendId);
+    }
+
 
     private Set<Integer> createListLikes(int filmId, int userId) {
         Set<Integer> likes = filmRepository.getFilmById(filmId).getLikes();

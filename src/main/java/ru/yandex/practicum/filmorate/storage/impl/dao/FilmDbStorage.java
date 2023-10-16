@@ -222,6 +222,26 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update("DELETE FROM films WHERE film_id=?", filmId);
     }
 
+    @Override
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        String sqlRequest = "SELECT f.film_id, COUNT(l.film_id) " +
+                "FROM films AS f " +
+                "LEFT OUTER JOIN likes AS l ON f.film_id = l.film_id " +
+                "WHERE f.film_id IN (SELECT l1.film_id FROM likes AS l1 " +
+                "LEFT JOIN likes AS l2 ON l1.film_id=l2.film_id " +
+                "WHERE l1.user_id=? AND l2.user_id=?) " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(l.film_id) DESC";
+
+        SqlRowSet popularFilms = jdbcTemplate.queryForRowSet(sqlRequest, userId, friendId);
+        List<Film> films = new ArrayList<>();
+        while (popularFilms.next()) {
+            films.add(getFilmById(popularFilms.getInt("film_id")));
+        }
+
+        return films;
+    }
+
     private Film getFilmFromDb(SqlRowSet filmRows) {
         String nameMpa = mpaRepository.findRatingById((filmRows.getInt("rating_id"))).getName();
         Mpa mpa = new Mpa(filmRows.getInt("rating_id"), nameMpa);

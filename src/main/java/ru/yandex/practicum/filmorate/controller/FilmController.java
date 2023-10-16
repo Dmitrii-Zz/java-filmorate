@@ -56,4 +56,5 @@ public class FilmController {
     public Collection<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
         return filmService.commonFilms(userId, friendId);
     }
+    
 }

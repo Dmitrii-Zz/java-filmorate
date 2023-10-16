@@ -67,6 +67,6 @@ public class AddDirectorTest {
 
         log.info("Удаление режиссера");
         directorController.deleteDirector(1);
-        assertEquals(3, directorController.findAll().size());
+        assertEquals(1, directorController.findAll().size());
     }
 }

@@ -21,6 +21,7 @@ public class Director {
     public Director(int id) {
         this.id = id;
     }
+
     public Director() {
 
     }

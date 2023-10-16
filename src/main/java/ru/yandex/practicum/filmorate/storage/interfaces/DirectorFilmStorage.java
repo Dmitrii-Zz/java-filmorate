@@ -6,5 +6,5 @@ public interface DirectorFilmStorage {
 
     void deleteDirectorFilm(int id);
 
-    public void deleteDirectorsByFilmId(int id);
+    void deleteDirectorsByFilmId(int id);
 }

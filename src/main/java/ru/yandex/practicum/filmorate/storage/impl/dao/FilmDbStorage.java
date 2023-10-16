@@ -12,11 +12,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.interfaces.DirectorFilmStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.interfaces.LikeFilmsStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.*;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -58,8 +54,8 @@ public class FilmDbStorage implements FilmStorage {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         String sqlRequest =
-                String.format("INSERT INTO films (name, description, release_date, duration, rating_id) " +
-                        "VALUES (?, ?, ?, ?, ?)");
+                "INSERT INTO films (name, description, release_date, duration, rating_id) " +
+                        "VALUES (?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection

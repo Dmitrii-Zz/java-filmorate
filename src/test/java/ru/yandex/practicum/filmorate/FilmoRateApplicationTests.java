@@ -1,4 +1,3 @@
-/*
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
@@ -11,16 +10,16 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.GenreController;
 import ru.yandex.practicum.filmorate.controller.RatingController;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.impl.dao.ReviewDBStorage;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @SpringBootTest
@@ -32,9 +31,11 @@ public class FilmoRateApplicationTests {
     private final FilmController filmController;
     private final GenreController genreController;
     private final RatingController ratingController;
+    private final ReviewDBStorage reviewDBStorage;
 
     @Test
     public void filmoRateTest() {
+
         log.info("Тест создания первого пользователя:");
         User user = User.builder().build();
         user.setName("Николай");
@@ -120,6 +121,9 @@ public class FilmoRateApplicationTests {
         Set<Genre> genres = new HashSet<>();
         genres.add(new Genre(1));
         film.setGenres(genres);
+        Set<Integer> likes = new HashSet<>();
+        likes.add(1);
+        film.setLikes(likes);
         Film film1 = filmController.createFilm(film);
 
         assertAll("Проверка фильма",
@@ -130,7 +134,8 @@ public class FilmoRateApplicationTests {
                 () -> assertEquals(121, film1.getDuration()),
                 () -> assertEquals(3, film1.getMpa().getId()),
                 () -> assertEquals("PG-13", film1.getMpa().getName()),
-                () -> assertEquals(1, film1.getGenres().size())
+                () -> assertEquals(1, film1.getGenres().size()),
+                () -> assertEquals(1, film1.getLikes().size())
         );
 
         log.info("Тест метода создания второго фильма");
@@ -178,7 +183,7 @@ public class FilmoRateApplicationTests {
         assertEquals(1, filmController.getFilm(1).getLikes().size());
 
         log.info("Тест методы запроса списка популярных фильмов");
-        List<Film> popularFilms = filmController.popularFilms(10);
+        List<Film> popularFilms = filmController.popularFilms(10, 0, 0);
         assertEquals(2, popularFilms.size());
 
         log.info("Тест запроса рейтинга по ИД");
@@ -192,6 +197,16 @@ public class FilmoRateApplicationTests {
         log.info("Тест удаления лайка");
         filmController.deleteLikeFilm(1, 1);
         assertEquals(0, filmController.getFilm(1).getLikes().size());
+
+        Review review = new Review("content_of_review1", true, 1,1);
+        reviewDBStorage.save(review);
+
+        Optional<Review> reviewOptional = Optional.ofNullable(reviewDBStorage.getReviewById(1));
+
+        assertThat(reviewOptional)
+                .isPresent()
+                .hasValueSatisfying(review1 ->
+                        assertThat(review1).hasFieldOrPropertyWithValue("reviewId", 1)
+                );
     }
 }
-*/

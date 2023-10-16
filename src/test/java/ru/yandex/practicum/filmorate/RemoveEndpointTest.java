@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -28,13 +29,13 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Sql({"/schemaTest.sql", "/dataTest.sql"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class RemoveEndpointTest {
     private final FilmStorage filmStorage;
     private final LikeFilmsStorage likeFilmsStorage;
     private final GenreStorage genreStorage;
     private final UserStorage userStorage;
     private final ReviewStorage reviewStorage;
-    private final FriendshipStorage friendshipStorage;
 
     @Test
     public void testRemoveFilmById() {

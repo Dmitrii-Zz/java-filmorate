@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
@@ -24,6 +25,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Sql({"/schemaTest.sql", "/dataTest.sql"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class SearchTest {
     private final FilmStorage filmStorage;
 

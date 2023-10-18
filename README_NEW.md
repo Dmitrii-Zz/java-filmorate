@@ -202,7 +202,7 @@ GET /directors
 
 ![https://avatars1.githubusercontent.com/u/5384215?v=3&s=460](https://github.com/Ksenni888/CheckBrackets/blob/main/photo_2023-10-18_10-30-54.jpg)
 
-Примеры запросов для работы с базой данных.
+*Примеры запросов для работы с базой данных.*
 
 1. Отобразить всех пользователей:
 ```
@@ -210,7 +210,7 @@ SELECT (*)
 FROM users;
 ```
 
-2. Отобразить названия фильмов жанра "Ужас":
+2. Отобразить названия фильмов жанра *"Ужас":*
 ```
 SELECT films.name
 FROM films

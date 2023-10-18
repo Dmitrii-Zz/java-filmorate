@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.FilmBuildingException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -283,7 +284,7 @@ public class FilmDbStorage implements FilmStorage {
                     .rate(likeRepository.getAllLikeFilmById(resultSet.getInt("film_id")).size())
                     .build();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new FilmBuildingException(e.getMessage());
         }
     }
 

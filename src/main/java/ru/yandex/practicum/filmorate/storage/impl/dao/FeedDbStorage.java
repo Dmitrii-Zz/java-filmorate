@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.storage.interfaces.FeedStorage;
 
 import java.sql.ResultSet;
@@ -28,8 +30,8 @@ public class FeedDbStorage implements FeedStorage {
         feed.setEventId(rs.getInt("event_id"));
         feed.setTimestamp(rs.getLong("timestamp"));
         feed.setUserId(rs.getInt("user_id"));
-        feed.setEventType(rs.getString("event_type"));
-        feed.setOperation(rs.getString("operation"));
+        feed.setEventType(EventType.valueOf(rs.getString("event_type")));
+        feed.setOperation(Operation.valueOf(rs.getString("operation")));
         feed.setEntityId(rs.getInt("entity_id"));
         return feed;
     }
@@ -41,8 +43,8 @@ public class FeedDbStorage implements FeedStorage {
         jdbcTemplate.update(sqlAddFeed,
                 feed.getTimestamp(),
                 feed.getUserId(),
-                feed.getEventType(),
-                feed.getOperation(),
+                feed.getEventType().toString(),
+                feed.getOperation().toString(),
                 feed.getEntityId());
     }
 }

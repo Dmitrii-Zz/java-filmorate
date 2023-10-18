@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserValidationException;
-import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.interfaces.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
@@ -57,8 +55,8 @@ public class UserService {
         feed.setUserId(id);
         feed.setEntityId(friendId);
         feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType("FRIEND");
-        feed.setOperation("ADD");
+        feed.setEventType(EventType.FRIEND);
+        feed.setOperation(Operation.ADD);
         feedRepository.addFeed(feed);
     }
 
@@ -72,8 +70,8 @@ public class UserService {
         feed.setUserId(id);
         feed.setEntityId(friendId);
         feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType("FRIEND");
-        feed.setOperation("REMOVE");
+        feed.setEventType(EventType.FRIEND);
+        feed.setOperation(Operation.REMOVE);
         feedRepository.addFeed(feed);
     }
 

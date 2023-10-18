@@ -7,8 +7,10 @@ import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.storage.interfaces.*;
 
 import java.time.Instant;
@@ -58,8 +60,8 @@ public class FilmService {
         feed.setUserId(userId);
         feed.setEntityId(filmId);
         feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType("LIKE");
-        feed.setOperation("ADD");
+        feed.setEventType(EventType.LIKE);
+        feed.setOperation(Operation.ADD);
         feedRepository.addFeed(feed);
     }
 
@@ -71,8 +73,8 @@ public class FilmService {
         feed.setUserId(userId);
         feed.setEntityId(filmId);
         feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType("LIKE");
-        feed.setOperation("REMOVE");
+        feed.setEventType(EventType.LIKE);
+        feed.setOperation(Operation.REMOVE);
         feedRepository.addFeed(feed);
     }
 

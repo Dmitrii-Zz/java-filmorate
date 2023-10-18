@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.interfaces.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
@@ -25,8 +27,8 @@ public class ReviewService {
         feed.setTimestamp(Instant.now().toEpochMilli());
         feed.setUserId(result.getUserId());
         feed.setEntityId(result.getReviewId());
-        feed.setEventType("REVIEW");
-        feed.setOperation("ADD");
+        feed.setEventType(EventType.REVIEW);
+        feed.setOperation(Operation.ADD);
         feedStorage.addFeed(feed);
         return result;
     }
@@ -37,8 +39,8 @@ public class ReviewService {
         feed.setTimestamp(Instant.now().toEpochMilli());
         feed.setUserId(result.getUserId());
         feed.setEntityId(result.getReviewId());
-        feed.setEventType("REVIEW");
-        feed.setOperation("UPDATE");
+        feed.setEventType(EventType.REVIEW);
+        feed.setOperation(Operation.UPDATE);
         feedStorage.addFeed(feed);
         return result;
     }
@@ -50,8 +52,8 @@ public class ReviewService {
         feed.setTimestamp(Instant.now().toEpochMilli());
         feed.setUserId(result.getUserId());
         feed.setEntityId(result.getReviewId());
-        feed.setEventType("REVIEW");
-        feed.setOperation("REMOVE");
+        feed.setEventType(EventType.REVIEW);
+        feed.setOperation(Operation.REMOVE);
         feedStorage.addFeed(feed);
     }
 

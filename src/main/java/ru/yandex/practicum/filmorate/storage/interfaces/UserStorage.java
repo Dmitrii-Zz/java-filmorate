@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.interfaces;
 
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -15,4 +16,8 @@ public interface UserStorage {
     User update(User user);
 
     User getUserById(int id);
+
+    List<Film> getFilmsRecomendation(int id);
+
+    void deleteUserById(int userId);
 }

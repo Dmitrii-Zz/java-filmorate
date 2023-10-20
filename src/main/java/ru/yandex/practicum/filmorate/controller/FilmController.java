@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -46,8 +47,28 @@ public class FilmController {
         filmService.deleteLike(id, userId);
     }
 
+    @DeleteMapping("/{filmId}")
+    public void deleteFilmById(@PathVariable int filmId) {
+        filmService.deleteFilmById(filmId);
+    }
+
     @GetMapping("/popular")
-    public List<Film> popularFilms(@RequestParam(defaultValue = "10") int count) {
-        return filmService.popularFilms(count);
+    public List<Film> popularFilms(@RequestParam(defaultValue = "10") Integer count, @RequestParam(defaultValue = "0") Integer genreId, @RequestParam(defaultValue = "0") Integer year) {
+        return filmService.popularFilms(count, genreId, year);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam(required = false) String query, @RequestParam(required = false) List<String> by) {
+        return filmService.searchFilms(query, by);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmByDirector(@PathVariable int directorId, @RequestParam String sortBy) {
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        return filmService.commonFilms(userId, friendId);
     }
 }

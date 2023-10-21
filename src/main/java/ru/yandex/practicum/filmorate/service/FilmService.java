@@ -36,12 +36,12 @@ public class FilmService {
     }
 
     public Film createFilm(Film film) {
-        validateFilm(film);
+        validateReleaseDateFilm(film);
         return filmRepository.save(film);
     }
 
     public Film updateFilm(Film film) {
-        validateFilm(film);
+        validateReleaseDateFilm(film);
         validateIdFilm(film.getId());
         return filmRepository.update(film);
     }
@@ -148,30 +148,10 @@ public class FilmService {
         }
     }
 
-    private void validateFilm(Film film) {
-
-        if (film == null) {
-            throw new FilmNotFoundException("В запросе отсутствует фильм.");
-        }
-
-        if (film.getName() == null) {
-            throw new FilmValidationException("В запросе отсутствует название фильма - name - null");
-        }
-
-        if (film.getName().isBlank()) {
-            throw new FilmValidationException("Название фильма не должно быть пустым.");
-        }
+    private void validateReleaseDateFilm(Film film) {
 
         if (!film.getReleaseDate().isAfter(VALIDATE_DATE_FILM)) {
             throw new FilmValidationException("Некорректная дата релиза фильма.");
-        }
-
-        if (!(film.getDescription().length() <= MAX_LENGTH_DESCRIPTION)) {
-            throw new FilmValidationException("Описание фильма не должно превышать 200 символов.");
-        }
-
-        if (film.getDuration() <= MIN_DURATION_FILM) {
-            throw new FilmValidationException("Продолжительность фильма не может быть отрицательной.");
         }
     }
 

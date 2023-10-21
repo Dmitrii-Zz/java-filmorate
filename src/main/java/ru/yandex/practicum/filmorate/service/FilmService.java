@@ -69,15 +69,6 @@ public class FilmService {
         return filmRepository.getPopularFilms(count, genreId, year);
     }
 
-    public List<Film> popularFilms(int count) {
-
-        if (count < CORRECT_COUNT) {
-            throw new FilmValidationException(String.format("Передан неверный параметр count = \"%d\"", count));
-        }
-
-        return filmRepository.getPopularFilms(count);
-    }
-
     public List<Film> getFilmsByDirector(int id, String sortBy) {
 
         if (!directorRepository.findDirectorById(id)) {

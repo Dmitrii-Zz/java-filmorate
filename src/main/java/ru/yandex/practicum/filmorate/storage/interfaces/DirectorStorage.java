@@ -19,5 +19,5 @@ public interface DirectorStorage {
 
     boolean findDirectorById(int id);
 
-    Set<Director> findDirectorFilm(int filmId);
+    List<Director> findDirectorFilm(int filmId);
 }

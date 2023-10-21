@@ -248,7 +248,7 @@ public class FilmDbStorage implements FilmStorage {
         Mpa mpa = new Mpa(filmRows.getInt("rating_id"), nameMpa);
         Set<Genre> genres = genreRepository.findGenreByFilmId((filmRows.getInt("film_id")));
         Set<Integer> likes = likeRepository.getAllLikeFilmById(filmRows.getInt("film_id"));
-        Set<Director> directors = directorRepository.findDirectorFilm(filmRows.getInt("film_id"));
+        Set<Director> directors = Set.copyOf(directorRepository.findDirectorFilm(filmRows.getInt("film_id")));
         Integer rate = likeRepository.getAllLikeFilmById(filmRows.getInt("film_id")).size();
         return Film.builder()
                 .name(filmRows.getString("name"))
@@ -270,7 +270,8 @@ public class FilmDbStorage implements FilmStorage {
             Mpa mpa = new Mpa(resultSet.getInt("rating_id"), nameMpa);
             Set<Genre> genres = genreRepository.findGenreByFilmId((resultSet.getInt("film_id")));
             Set<Integer> likes = likeRepository.getAllLikeFilmById(resultSet.getInt("film_id"));
-            Set<Director> directors = directorRepository.findDirectorFilm(resultSet.getInt("film_id"));
+            Set<Director> directors =
+                    Set.copyOf(directorRepository.findDirectorFilm(resultSet.getInt("film_id")));
             return Film.builder()
                     .name(resultSet.getString("name"))
                     .description(resultSet.getString("description"))

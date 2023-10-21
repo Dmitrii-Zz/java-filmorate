@@ -8,12 +8,10 @@ import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.storage.interfaces.*;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -56,26 +54,14 @@ public class FilmService {
         validateIdUser(userId);
         filmRepository.getFilmById(filmId).setLikes(createListLikes(filmId, userId));
         likeFilmRepository.addLike(filmId, userId);
-        Feed feed = new Feed();
-        feed.setUserId(userId);
-        feed.setEntityId(filmId);
-        feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType(EventType.LIKE);
-        feed.setOperation(Operation.ADD);
-        feedRepository.addFeed(feed);
+        feedRepository.addFeed(userId, filmId, EventType.LIKE, Operation.ADD);
     }
 
     public void deleteLike(int filmId, int userId) {
         validateIdFilm(filmId);
         validateIdUser(userId);
         likeFilmRepository.deleteLike(filmId, userId);
-        Feed feed = new Feed();
-        feed.setUserId(userId);
-        feed.setEntityId(filmId);
-        feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType(EventType.LIKE);
-        feed.setOperation(Operation.REMOVE);
-        feedRepository.addFeed(feed);
+        feedRepository.addFeed(userId, filmId, EventType.LIKE, Operation.REMOVE);
     }
 
     public List<Film> popularFilms(Integer count, Integer genreId, Integer year) {
@@ -116,7 +102,6 @@ public class FilmService {
         return filmRepository.getCommonFilms(userId, friendId);
     }
 
-
     private Set<Integer> createListLikes(int filmId, int userId) {
         Set<Integer> likes = filmRepository.getFilmById(filmId).getLikes();
         if (likes == null) {
@@ -149,7 +134,6 @@ public class FilmService {
     }
 
     private void validateReleaseDateFilm(Film film) {
-
         if (!film.getReleaseDate().isAfter(VALIDATE_DATE_FILM)) {
             throw new FilmValidationException("Некорректная дата релиза фильма.");
         }

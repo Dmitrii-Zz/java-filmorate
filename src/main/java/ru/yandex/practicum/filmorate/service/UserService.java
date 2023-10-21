@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.interfaces.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,13 +49,7 @@ public class UserService {
         User friend = userRepository.getUserById(friendId);
         user.getFriends().add(friend.getId());
         friendshipRepository.addFriend(id, friendId);
-        Feed feed = new Feed();
-        feed.setUserId(id);
-        feed.setEntityId(friendId);
-        feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType(EventType.FRIEND);
-        feed.setOperation(Operation.ADD);
-        feedRepository.addFeed(feed);
+        feedRepository.addFeed(id, friendId, EventType.FRIEND, Operation.ADD);
     }
 
     public void removeFriend(int id, int friendId) {
@@ -65,13 +58,7 @@ public class UserService {
         User friend = userRepository.getUserById(friendId);
         user.getFriends().remove(friend.getId());
         friendshipRepository.removeFriend(id, friendId);
-        Feed feed = new Feed();
-        feed.setUserId(id);
-        feed.setEntityId(friendId);
-        feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType(EventType.FRIEND);
-        feed.setOperation(Operation.REMOVE);
-        feedRepository.addFeed(feed);
+        feedRepository.addFeed(id, friendId, EventType.FRIEND, Operation.REMOVE);
     }
 
     public List<User> findMutualFriends(int id, int otherId) {

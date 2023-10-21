@@ -4,57 +4,36 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.interfaces.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.ReviewStorage;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ReviewService {
-
     private final ReviewStorage reviewStorage;
     private final FeedStorage feedStorage;
 
     public Review save(Review review) {
         Review result = reviewStorage.save(review);
-        Feed feed = new Feed();
-        feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setUserId(result.getUserId());
-        feed.setEntityId(result.getReviewId());
-        feed.setEventType(EventType.REVIEW);
-        feed.setOperation(Operation.ADD);
-        feedStorage.addFeed(feed);
+        feedStorage.addFeed(result.getUserId(), result.getReviewId(), EventType.REVIEW, Operation.ADD);
         return result;
     }
 
     public Review update(Review review) {
         Review result = reviewStorage.update(review);
-        Feed feed = new Feed();
-        feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setUserId(result.getUserId());
-        feed.setEntityId(result.getReviewId());
-        feed.setEventType(EventType.REVIEW);
-        feed.setOperation(Operation.UPDATE);
-        feedStorage.addFeed(feed);
+        feedStorage.addFeed(result.getUserId(), result.getReviewId(), EventType.REVIEW, Operation.UPDATE);
         return result;
     }
 
     public void deleteReviewByID(int reviewId) {
         Review result = getReviewById(reviewId);
         reviewStorage.deleteReviewByID(reviewId);
-        Feed feed = new Feed();
-        feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setUserId(result.getUserId());
-        feed.setEntityId(result.getReviewId());
-        feed.setEventType(EventType.REVIEW);
-        feed.setOperation(Operation.REMOVE);
-        feedStorage.addFeed(feed);
+        feedStorage.addFeed(result.getUserId(), result.getReviewId(), EventType.REVIEW, Operation.REMOVE);
     }
 
     public Review getReviewById(int reviewId) {

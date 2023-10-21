@@ -54,12 +54,6 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIdDirectorValidationException(final DirectorIdValidationException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIdDirectorValidationException(final NegativeCountException e) {
         return new ErrorResponse(e.getMessage());
     }

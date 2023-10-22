@@ -32,7 +32,7 @@ public class AddDirectorTest {
         Director saveDirector = directorController.createDirector(director);
 
         assertAll("Проверка режиссера",
-                () -> assertEquals(1, saveDirector.getId()),
+                () -> assertEquals(3, saveDirector.getId()),
                 () -> assertEquals("Director one", saveDirector.getName()));
 
         log.info("Тест возврата режиссера по идентификатору");

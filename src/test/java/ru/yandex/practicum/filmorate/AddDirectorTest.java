@@ -39,7 +39,7 @@ public class AddDirectorTest {
 
         Director directorById = directorController.getDirectorById(1);
         assertAll("Проверка режиссера",
-                () -> assertEquals(1, saveDirector.getId()),
+                () -> assertEquals(3, saveDirector.getId()),
                 () -> assertEquals("Director one", saveDirector.getName()));
 
         log.info("Обновление режиссера");

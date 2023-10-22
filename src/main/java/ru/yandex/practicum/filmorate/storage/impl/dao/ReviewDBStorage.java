@@ -26,7 +26,6 @@ import java.util.Objects;
 @Primary
 @RequiredArgsConstructor
 public class ReviewDBStorage implements ReviewStorage {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -85,14 +84,14 @@ public class ReviewDBStorage implements ReviewStorage {
 
     public Review getReviewById(int reviewId) {
 
-        String sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL FROM REVIEWS WHERE REVIEW_ID = ?";
+        String sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL " +
+                          "FROM REVIEWS WHERE REVIEW_ID = ?";
 
         try {
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToReview, reviewId);
         } catch (EmptyResultDataAccessException e) {
             throw new ReviewNotFoundException("Review with id = " + reviewId + " have not been found.");
         }
-
     }
 
     @Override
@@ -102,9 +101,11 @@ public class ReviewDBStorage implements ReviewStorage {
         String sqlQuery;
 
         if (filmId == 0) {
-            sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL FROM REVIEWS ORDER BY USEFUL DESC LIMIT " + count;
+            sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL " +
+                       "FROM REVIEWS ORDER BY USEFUL DESC LIMIT " + count;
         } else {
-            sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL FROM REVIEWS WHERE FILM_ID = " + filmId + " ORDER BY USEFUL DESC LIMIT " + count;
+            sqlQuery = "SELECT REVIEW_ID, REVIEW_CONTENT, IS_POSITIVE, USER_ID, FILM_ID, USEFUL " +
+                       "FROM REVIEWS WHERE FILM_ID = " + filmId + " ORDER BY USEFUL DESC LIMIT " + count;
         }
 
         reviews = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::mapRowToReview));
@@ -179,5 +180,4 @@ public class ReviewDBStorage implements ReviewStorage {
                 .useful(rs.getInt("USEFUL"))
                 .build();
     }
-
 }

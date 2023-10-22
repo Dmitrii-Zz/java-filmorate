@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
@@ -13,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.interfaces.DirectorStorage;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
-import java.util.Set;
 
 @Component
 @Slf4j
@@ -37,9 +35,7 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Director createDirector(Director director) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        String sqlRequest =
-                "INSERT INTO directors (name) VALUES (?)";
+        String sqlRequest = "INSERT INTO directors (name) VALUES (?)";
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
@@ -49,41 +45,36 @@ public class DirectorDbStorage implements DirectorStorage {
         }, keyHolder);
 
         director.setId((int) keyHolder.getKey());
-        log.info("Возвращаем режиссера:" + director);
         return director;
     }
 
     @Override
     public Director updateDirector(Director director) {
-        String sqlRequest = String.format("UPDATE directors " +
-                        "SET name = '%s'" +
-                        "WHERE director_id = '%d'",
-                director.getName(), director.getId());
-        jdbcTemplate.execute(sqlRequest);
+        String sqlRequest = "UPDATE directors SET name = ? WHERE director_id = ?;";
+        jdbcTemplate.update(sqlRequest, director.getName(), director.getId());
         return director;
     }
 
     @Override
     public void deleteDirector(int id) {
-        String sqlRequest = String.format("DELETE FROM directors WHERE director_id = %d", id);
-        jdbcTemplate.execute(sqlRequest);
+        String sqlRequest = "DELETE FROM directors WHERE director_id = ?;";
+        jdbcTemplate.update(sqlRequest, id);
     }
 
     @Override
     public boolean findDirectorById(int id) {
-        SqlRowSet directorRows = jdbcTemplate.queryForRowSet("SELECT * FROM directors WHERE director_id = ?", id);
-        return directorRows.next();
+        String sqlRequest = "SELECT EXISTS(SELECT * FROM directors WHERE director_id = ?)";
+        return jdbcTemplate.queryForObject(sqlRequest, Boolean.class, id);
     }
 
     @Override
-    public Set<Director> findDirectorFilm(int filmId) {
+    public List<Director> findDirectorFilm(int filmId) {
+        String sqlRequest = "SELECT d.* FROM DIRECTORS AS d\n" +
+                            "LEFT OUTER JOIN DIRECTOR_FILM df ON d.DIRECTOR_ID = df.DIRECTOR_ID \n" +
+                            "WHERE df.FILM_ID = ?;";
 
-        String sqlRequest = String.format("SELECT d.* FROM DIRECTORS AS d\n" +
-                "LEFT OUTER JOIN DIRECTOR_FILM df ON d.DIRECTOR_ID = df.DIRECTOR_ID \n" +
-                "WHERE df.FILM_ID = %d;", filmId);
-
-        return Set.copyOf(jdbcTemplate.query(sqlRequest,
-                (resulSet, rowNum) -> directorParameters(resulSet)));
+        return jdbcTemplate.query(sqlRequest,
+                (resulSet, rowNum) -> directorParameters(resulSet), filmId);
     }
 
     private Director directorParameters(ResultSet resultSet) {

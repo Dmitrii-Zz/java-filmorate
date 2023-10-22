@@ -14,7 +14,6 @@ import java.util.List;
 @RequestMapping("/reviews")
 @RequiredArgsConstructor
 public class ReviewController {
-
     private final ReviewService reviewService;
 
     @PostMapping
@@ -44,7 +43,8 @@ public class ReviewController {
     @GetMapping
     public List<Review> getAllReviewsByFilmId(@RequestParam(defaultValue = "0") int filmId,
                                               @RequestParam(defaultValue = "10") int count) {
-        log.info("Invoke getAllReviewsByFilmId method to return reviews by filmId = " + filmId + " and count = " + count);
+        log.info("Invoke getAllReviewsByFilmId method to return reviews by filmId = "
+                + filmId + " and count = " + count);
         return reviewService.getAllReviewsByFilmId(filmId, count);
     }
 

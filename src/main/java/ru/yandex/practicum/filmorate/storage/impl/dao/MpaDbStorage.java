@@ -3,13 +3,11 @@ package ru.yandex.practicum.filmorate.storage.impl.dao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.RatingNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.RatingStorage;
 
-import java.util.ArrayList;
+import java.sql.ResultSet;
 import java.util.List;
 
 @Component
@@ -20,26 +18,24 @@ public class MpaDbStorage implements RatingStorage {
 
     @Override
     public List<Mpa> findAllRating() {
-        List<Mpa> mpas = new ArrayList<>();
-        SqlRowSet ratingRows = jdbcTemplate.queryForRowSet("SELECT * FROM rating");
-        while (ratingRows.next()) {
-            mpas.add(getRatingFromDb(ratingRows));
-        }
-
-        return mpas;
+        return jdbcTemplate.query("SELECT * FROM rating",
+                (resultSet, rowNum) -> mpaParameters(resultSet));
     }
 
     @Override
     public Mpa findRatingById(int id) {
-        SqlRowSet ratingRows = jdbcTemplate.queryForRowSet("SELECT * FROM rating WHERE rating_id = ?", id);
-        if (ratingRows.next()) {
-            return getRatingFromDb(ratingRows);
-        }
-
-        throw new RatingNotFoundException(String.format("Рейтинг с id = '%d', не существует", id));
+        return jdbcTemplate.queryForObject("SELECT * FROM rating WHERE rating_id = ?",
+                (resultSet, rowNum) -> mpaParameters(resultSet), id);
     }
 
-    private Mpa getRatingFromDb(SqlRowSet ratingRows) {
-        return new Mpa(ratingRows.getInt("rating_id"), ratingRows.getString("name"));
+    private Mpa mpaParameters(ResultSet resultSet) {
+        try {
+            return Mpa.builder()
+                    .id(resultSet.getInt("rating_id"))
+                    .name(resultSet.getString("name"))
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

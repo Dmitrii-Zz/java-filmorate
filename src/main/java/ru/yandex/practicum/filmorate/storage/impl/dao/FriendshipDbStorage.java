@@ -14,16 +14,13 @@ public class FriendshipDbStorage implements FriendshipStorage {
 
     @Override
     public void addFriend(int userId, int friendId) {
-        String sqlRequest =
-                String.format("MERGE INTO friends (user_id, friend_id) KEY (user_id, friend_id) VALUES (%d, %d);",
-                        userId, friendId, true);
-        jdbcTemplate.execute(sqlRequest);
+        String sqlRequest = "MERGE INTO friends (user_id, friend_id) KEY (user_id, friend_id) VALUES (?, ?)";
+        jdbcTemplate.update(sqlRequest, userId, friendId);
     }
 
     @Override
     public void removeFriend(int userId, int friendId) {
-        String sqlRequest =
-                String.format("DELETE FROM friends WHERE user_id = '%d' AND friend_id = '%d'", userId, friendId);
-        jdbcTemplate.execute(sqlRequest);
+        String sqlRequest = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
+        jdbcTemplate.update(sqlRequest, userId, friendId);
     }
 }

@@ -3,15 +3,14 @@ package ru.yandex.practicum.filmorate.storage.impl.dao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Primary
@@ -21,55 +20,51 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> findAllGenres() {
-        List<Genre> genres = new ArrayList<>();
-        SqlRowSet genreRows = jdbcTemplate.queryForRowSet("SELECT * FROM genres");
-        while (genreRows.next()) {
-            genres.add(getGenreFromDb(genreRows));
-        }
-
-        return genres;
+        return jdbcTemplate.query("SELECT * FROM genres",
+                (resultSet, rowNum) -> genreParameters(resultSet));
     }
 
     @Override
     public Genre findGenreById(int id) {
-        SqlRowSet genreRows = jdbcTemplate.queryForRowSet("SELECT * FROM genres WHERE genre_id = ?", id);
-        genreRows.next();
-        return getGenreFromDb(genreRows);
+        return jdbcTemplate.queryForObject("SELECT * FROM genres WHERE genre_id = ?",
+                (resultSet, rowNum) -> genreParameters(resultSet), id);
     }
 
     @Override
     public Set<Genre> findGenreByFilmId(int filmId) {
-        Set<Genre> genres = new HashSet<>();
-        String sqlRequest = String.format("SELECT gf.genre_id, g.name " +
-                "FROM genre_film AS gf " +
-                "LEFT OUTER JOIN genres AS g ON gf.genre_id = g.GENRE_ID " +
-                "WHERE gf.film_id = %d " +
-                "ORDER BY gf.genre_id ASC;", filmId);
+        String sqlRequest = "SELECT gf.genre_id, g.name " +
+                            "FROM genre_film AS gf " +
+                            "LEFT OUTER JOIN genres AS g ON gf.genre_id = g.GENRE_ID " +
+                            "WHERE gf.film_id = ? " +
+                            "ORDER BY gf.genre_id ASC;";
 
-        SqlRowSet genresRows = jdbcTemplate.queryForRowSet(sqlRequest);
-        while (genresRows.next()) {
-            genres.add(new Genre(genresRows.getInt("genre_id"), genresRows.getString("name")));
-        }
+        List<Genre> genres = (jdbcTemplate.query(sqlRequest,
+                (resultSet, rowNum) -> genreParameters(resultSet), filmId)).stream()
+                .sorted((x1, x2) -> x2.getId() - x1.getId()).collect(Collectors.toList());
 
-        return genres;
+        return Set.copyOf(genres);
     }
 
     @Override
     public void saveGenreFilm(int filmId, int genreId) {
-        String sqlRequest =
-                String.format("INSERT INTO genre_film (film_id, genre_id) VALUES ('%d', '%d')", filmId, genreId);
-        jdbcTemplate.execute(sqlRequest);
+        String sqlRequest = "INSERT INTO genre_film (film_id, genre_id) VALUES (?, ?)";
+        jdbcTemplate.update(sqlRequest, filmId, genreId);
     }
 
     @Override
     public void deleteGenreFilm(int filmID) {
-        String sqlRequest =
-                String.format("DELETE FROM genre_film WHERE film_id = %d;", filmID);
-
-        jdbcTemplate.execute(sqlRequest);
+        String sqlRequest = "DELETE FROM genre_film WHERE film_id = ?;";
+        jdbcTemplate.update(sqlRequest, filmID);
     }
 
-    private Genre getGenreFromDb(SqlRowSet genreRows) {
-        return new Genre(genreRows.getInt("genre_id"), genreRows.getString("name"));
+    private Genre genreParameters(ResultSet resultSet) {
+        try {
+            return Genre.builder()
+                        .id(resultSet.getInt("genre_id"))
+                        .name(resultSet.getString("name"))
+                        .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

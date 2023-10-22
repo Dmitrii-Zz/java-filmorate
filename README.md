@@ -200,7 +200,7 @@ GET /directors
 # Структура базы данных.
 -----------------------------------------------------------------------------------------
 
-![https://avatars1.githubusercontent.com/u/5384215?v=3&s=460](https://github.com/Ksenni888/CheckBrackets/blob/main/photo_2023-10-18_10-30-54.jpg)
+<image src="/src/main/resources/BD4.jpg" alt="Структура базы данных">
 
 Примеры запросов для работы с базой данных.
 

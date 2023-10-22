@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
 
 import java.sql.ResultSet;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,14 +37,12 @@ public class GenreDbStorage implements GenreStorage {
         String sqlRequest = "SELECT gf.genre_id, g.name " +
                             "FROM genre_film AS gf " +
                             "LEFT OUTER JOIN genres AS g ON gf.genre_id = g.GENRE_ID " +
-                            "WHERE gf.film_id = ? " +
-                            "ORDER BY gf.genre_id ASC;";
+                            "WHERE gf.film_id = ?";
 
-        List<Genre> genres = (jdbcTemplate.query(sqlRequest,
+        return (jdbcTemplate.query(sqlRequest,
                 (resultSet, rowNum) -> genreParameters(resultSet), filmId)).stream()
-                .sorted((x1, x2) -> x2.getId() - x1.getId()).collect(Collectors.toList());
-
-        return Set.copyOf(genres);
+                .sorted(Comparator.comparingInt(Genre::getId))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override

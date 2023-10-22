@@ -98,7 +98,7 @@ public class FilmService {
         if (likes == null) {
             likes = new HashSet<>();
         }
-
+        log.info("список лайков в методе createListLikes = " + likes.toString());
         likes.add(userId);
         return likes;
     }

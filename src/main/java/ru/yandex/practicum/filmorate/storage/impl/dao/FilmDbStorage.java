@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.impl.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @Component
 @Primary
 @RequiredArgsConstructor
+@Slf4j
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MpaDbStorage mpaRepository;
@@ -288,6 +290,7 @@ public class FilmDbStorage implements FilmStorage {
             Mpa mpa = new Mpa(resultSet.getInt("rating_id"), nameMpa);
             Set<Genre> genres = genreRepository.findGenreByFilmId((resultSet.getInt("film_id")));
             Set<Integer> likes = likeRepository.getAllLikeFilmById(resultSet.getInt("film_id"));
+            log.info("Лайки = " + likes.toString());
             Set<Director> directors =
                     Set.copyOf(directorRepository.findDirectorFilm(resultSet.getInt("film_id")));
             return Film.builder()

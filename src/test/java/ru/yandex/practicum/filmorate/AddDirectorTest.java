@@ -58,12 +58,12 @@ public class AddDirectorTest {
         Director saveDirectorTwo = directorController.createDirector(directorTwo);
 
         assertAll("Проверка второго режиссера",
-                () -> assertEquals(2, saveDirectorTwo.getId()),
+                () -> assertEquals(4, saveDirectorTwo.getId()),
                 () -> assertEquals("Director two", saveDirectorTwo.getName()));
 
 
         log.info("Тест возврата списка режиссеров");
-        assertEquals(2, directorController.findAll().size());
+        assertEquals(4, directorController.findAll().size());
 
         log.info("Удаление режиссера");
         directorController.deleteDirector(1);

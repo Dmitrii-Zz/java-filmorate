@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
@@ -19,18 +20,19 @@ import java.util.Set;
 public class User {
     int id;
 
-    @Email
-    @NotBlank
-    @NotNull
+    @NotNull(message = "Отсутствует электронная почта.")
+    @NotBlank(message = "Электронная почта не должна быть пустой.")
+    @Email(message = "Введен некорректный адрес электронный почты.")
     String email;
 
-    @NotBlank
-    @NotNull
+    @NotNull(message = "Отсутствует логин.")
+    @NotBlank(message = "Логин не должен быть пустым.")
     String login;
 
     String name;
 
-    @NotNull
+    @NotNull(message = "Отсутствует дата рождения пользователя.")
+    @Past
     LocalDate birthday;
 
     Set<Integer> friends;
@@ -44,5 +46,4 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
-
 }

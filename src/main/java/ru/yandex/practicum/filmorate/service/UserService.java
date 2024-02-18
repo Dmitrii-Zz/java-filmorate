@@ -9,8 +9,6 @@ import ru.yandex.practicum.filmorate.storage.interfaces.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FriendshipStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,13 +31,13 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        userValidate(user);
+        validateUserLogin(user);
         validateName(user);
         return userRepository.save(user);
     }
 
     public User updateUser(User user) {
-        userValidate(user);
+        validateUserLogin(user);
         validationId(user.getId());
         validateName(user);
         return userRepository.update(user);
@@ -51,13 +49,7 @@ public class UserService {
         User friend = userRepository.getUserById(friendId);
         user.getFriends().add(friend.getId());
         friendshipRepository.addFriend(id, friendId);
-        Feed feed = new Feed();
-        feed.setUserId(id);
-        feed.setEntityId(friendId);
-        feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType(EventType.FRIEND);
-        feed.setOperation(Operation.ADD);
-        feedRepository.addFeed(feed);
+        feedRepository.addFeed(id, friendId, EventType.FRIEND, Operation.ADD);
     }
 
     public void removeFriend(int id, int friendId) {
@@ -66,13 +58,7 @@ public class UserService {
         User friend = userRepository.getUserById(friendId);
         user.getFriends().remove(friend.getId());
         friendshipRepository.removeFriend(id, friendId);
-        Feed feed = new Feed();
-        feed.setUserId(id);
-        feed.setEntityId(friendId);
-        feed.setTimestamp(Instant.now().toEpochMilli());
-        feed.setEventType(EventType.FRIEND);
-        feed.setOperation(Operation.REMOVE);
-        feedRepository.addFeed(feed);
+        feedRepository.addFeed(id, friendId, EventType.FRIEND, Operation.REMOVE);
     }
 
     public List<User> findMutualFriends(int id, int otherId) {
@@ -108,6 +94,7 @@ public class UserService {
     }
 
     public void deleteUserById(int userId) {
+        validationId(userId);
         userRepository.deleteUserById(userId);
     }
 
@@ -121,34 +108,9 @@ public class UserService {
         }
     }
 
-    private void userValidate(User user) {
-
-        if (user == null) {
-            throw new UserNotFoundException("В запросе отсутствует пользователь.");
-        }
-
-        if (user.getLogin() == null) {
-            throw new UserValidationException("Не передан логин - Login = null");
-        }
-
-        if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            throw new UserValidationException("Логин не должен быть пустым и содержать пробелов.");
-        }
-
-        if (user.getBirthday() == null) {
-            throw new UserValidationException("Не передана дата рождения - Birthday = null");
-        }
-
-        if (!LocalDate.now().isAfter(user.getBirthday())) {
-            throw new UserValidationException("Некорректная дата рождения.");
-        }
-
-        if (user.getEmail() == null) {
-            throw new UserValidationException("Не передан email - Email = null");
-        }
-
-        if (user.getEmail().isBlank()) {
-            throw new UserValidationException("Передан пустой логин.");
+    private void validateUserLogin(User user) {
+        if (user.getLogin().contains(" ")) {
+            throw new UserValidationException("Логин не должен содержать пробелов.");
         }
     }
 
